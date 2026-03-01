@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Constituency Political Intelligence System</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+ 
 
   <!-- External CSS -->
   <link rel="stylesheet" href="reports.css">
@@ -242,7 +242,7 @@
 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
   <input id="searchBox" placeholder="Search keyword..." oninput="renderTable()">
 
-  <select id="filterAssembly" onchange="renderTable()">
+  <select id="newsAssemblyFilter" onchange="renderTable()">
     <option value="">All Assemblies</option>
     <option>Kakinada Rural</option>
     <option>Kakinada Urban</option>
@@ -306,7 +306,7 @@
   <div style="display:flex; justify-content:space-between; align-items:center;">
     <div>
       <input id="leaderSearch" placeholder="Search Name..." oninput="renderLeaders()">
-<input id="filterAssembly" placeholder="Assembly" oninput="renderLeaders()">
+<input id="leaderAssembly" placeholder="Assembly" oninput="renderLeaders()">
 <input id="filterMandal" placeholder="Mandal" oninput="renderLeaders()">
 <input id="filterPanchayat" placeholder="Panchayat" oninput="renderLeaders()">
 <input id="filterVillage" placeholder="Village" oninput="renderLeaders()">
@@ -376,22 +376,14 @@
     <div class="report-controls card">
       <h3>Selection Panel</h3>
 
-      <select id="repAssembly">
-        <option value="">Select Assembly</option>
-      </select>
-
-      <select id="repMandal">
-        <option value="">Select Mandal</option>
-      </select>
-
-      <select id="repPanchayat">
-        <option value="">Select Panchayat</option>
-      </select>
+      <select id="repAssembly"></select>
+      <select id="repMandal"></select>
+      <select id="repPanchayat"></select>
 
       <div class="btn-group">
-        <button class="btn primary" onclick="loadReport()">Load Report</button>
-        <button class="btn secondary" onclick="generatePDF()">Export PDF</button>
-        <button class="btn warning" onclick="clearReport()">Reset</button>
+        <button class="btn primary">Load Report</button>
+        <button class="btn secondary">Export PDF</button>
+        <button class="btn warning">Reset</button>
       </div>
     </div>
 
@@ -538,7 +530,7 @@ function clearForm(){
 function renderTable(){
   const data = JSON.parse(localStorage.getItem("newsIntel") || "[]");
 
-  const asm = filterAssembly.value;
+  const asm = newsAssemblyFilter.value;
   const imp = filterImpact.value;
   const dt = filterDate.value;
 
@@ -622,21 +614,20 @@ function deleteNews(i){
   renderTable();
 }
 
-function clearForm(){
-  level.value = assembly.value = mandal.value = panchayat.value = village.value = booth.value = "";
-  specialComments.value = "";
-  importance.value = impact.value = 5;
-  impVal.innerText = impactVal.innerText = 5;
-  media.value = "";
-}
+
 
 /* ---------------- ANALYTICS ---------------- */
 
 function updateAnalytics(data){
-  totalIntel.innerText = data.length;
-  highImpact.innerText = data.filter(d=>d.impact>8).length;
-  avgImpact.innerText = data.length ? 
-    (data.reduce((a,b)=>a+Number(b.impact),0)/data.length).toFixed(1) : 0;
+  document.getElementById("totalCount").innerText = data.length;
+
+  document.getElementById("highImpactCount").innerText =
+    data.filter(d=>d.impact>8).length;
+
+  document.getElementById("avgImpact").innerText =
+    data.length
+      ? (data.reduce((a,b)=>a+Number(b.impact),0)/data.length).toFixed(1)
+      : 0;
 }
 
 /* ---------------- EXPORT ---------------- */
@@ -795,7 +786,7 @@ function renderLeaders(){
 
   const filtered = data.filter(l =>
     (!leaderSearch.value || l.name.toLowerCase().includes(leaderSearch.value.toLowerCase())) &&
-    (!filterAssembly.value || l.ac?.toLowerCase().includes(filterAssembly.value.toLowerCase())) &&
+    (!leaderAssembly.value || l.ac?.toLowerCase().includes(leaderAssembly.value.toLowerCase())) &&
     (!filterMandal.value || l.mandal?.toLowerCase().includes(filterMandal.value.toLowerCase())) &&
     (!filterPanchayat.value || l.panchayat?.toLowerCase().includes(filterPanchayat.value.toLowerCase())) &&
     (!filterVillage.value || l.village?.toLowerCase().includes(filterVillage.value.toLowerCase())) &&
@@ -822,7 +813,7 @@ function renderLeaderStats(){
   // apply SAME filters as dashboard
   data = data.filter(l =>
     (!leaderSearch.value || l.name?.toLowerCase().includes(leaderSearch.value.toLowerCase())) &&
-    (!filterAssembly.value || l.ac?.toLowerCase().includes(filterAssembly.value.toLowerCase())) &&
+    (!leaderAssembly.value || l.ac?.toLowerCase().includes(leaderAssembly.value.toLowerCase())) &&
     (!filterMandal.value || l.mandal?.toLowerCase().includes(filterMandal.value.toLowerCase())) &&
     (!filterPanchayat.value || l.panchayat?.toLowerCase().includes(filterPanchayat.value.toLowerCase())) &&
     (!filterVillage.value || l.village?.toLowerCase().includes(filterVillage.value.toLowerCase())) &&
@@ -1002,8 +993,11 @@ overflow:auto; padding:30px;">
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="reports.js"></script>
 
-<script src="./reports.js"></script>
+
 
 </body>
 </html>
