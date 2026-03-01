@@ -1,0 +1,35 @@
+.report-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+}
+
+.report-controls select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn.primary { background:#1d4ed8; color:white; }
+.btn.secondary { background:#0f766e; color:white; }
+.btn.warning { background:#dc2626; color:white; }
+
+.report-output {
+  min-height: 500px;
+}

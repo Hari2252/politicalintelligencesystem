@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Constituency Political Intelligence System</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="reports.css">
+
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; background:#f1f5f9; }
+    header { background:#020617; color:white; padding:14px 20px; font-size:20px; font-weight:bold; }
+    .layout { display:flex; height:calc(100vh - 52px); }
+    .sidebar { width:260px; background:#020617; color:white; padding:15px; overflow:auto; }
+    .sidebar h3 { font-size:14px; opacity:0.7; margin-top:15px; }
+    .sidebar button {
+      width:100%; background:none; border:none; color:white;
+      text-align:left; padding:10px; border-radius:8px; cursor:pointer;
+    }
+    .sidebar button:hover { background:#1e293b; }
+
+    .main { flex:1; padding:20px; overflow:auto; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
+    .card { background:white; padding:14px; border-radius:14px; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
+    .hidden { display:none; }
+    .kpi { font-size:26px; font-weight:bold; }
+    .sub { color:gray; font-size:13px; }
+    ul { padding-left:18px; }
+    li { margin-bottom:6px; }
+    .map-box {
+      height:360px;
+      background:linear-gradient(135deg,#cbd5f5,#e2e8f0);
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<header>🏛️ Kakinada - Constituency Political Intelligence System</header>
+
+<div class="layout">
+
+  <div class="sidebar">
+    <h3>COMMAND</h3>
+    <button onclick="show('dashboard')">Command Center</button>
+    <button onclick="show('map')">Political Map</button>
+
+    <h3>INTELLIGENCE</h3>
+    <button onclick="show('events')">Political Updates</button>
+    <button onclick="show('alerts')">Alerts & Strategy</button>
+    <button onclick="show('news')">News & Media</button>
+    <button onclick="show('ourevents')">Events</button>
+
+    <h3>DATA VAULT</h3>
+    <button onclick="show('leaders')">Leaders History</button>
+    <button onclick="show('officers')">Govt Officers</button>
+    <button onclick="show('elections')">Election Results</button>
+    <button onclick="show('surveys')">Surveys & Sentiment</button>
+    <button onclick="show('social')">Social Media</button>
+    <button onclick="show('projects')">Projects Tracker</button>
+    <button onclick="show('reports')">Automated Reports</button>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+      <h2>Command Center</h2>
+
+      <div class="grid">
+        <div class="card"><div class="sub">Approval Index</div><div class="kpi">54 / 100</div></div>
+        <div class="card"><div class="sub">Cadre Health</div><div class="kpi">68%</div></div>
+        <div class="card"><div class="sub">Risk Villages</div><div class="kpi">118</div></div>
+        <div class="card"><div class="sub">Momentum</div><div class="kpi">⬆ Positive</div></div>
+      </div>
+
+      <br>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Weekly Political Pulse</h3>
+          <canvas id="sentimentChart"></canvas>
+        </div>
+
+        <div class="card">
+          <h3>Top Strategic Alerts</h3>
+          <ul>
+            <li>32 villages shifting anti-incumbency</li>
+            <li>Water issue spike in North mandals</li>
+            <li>Low cadre activity in 118 villages</li>
+            <li>Youth narrative rising rapidly</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div id="map" class="hidden">
+      <h2>Interactive Political Map</h2>
+      <div class="map-box">
+        GIS Map with Booths • Party Strength • Caste Dominance • Focus Areas
+      </div>
+      <br>
+      <div class="card">
+        Layers: Party strength | Issues | Sentiment | Caste | Focus villages | Projects
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div id="events" class="hidden">
+      <h2>Top Political Events & Situations</h2>
+      <div class="card">
+        <ul>
+          <li><b>This Week:</b> Farmers protest in northern belt</li>
+          <li><b>This Month:</b> Welfare scheme dissatisfaction rising</li>
+          <li><b>This Quarter:</b> Youth voter realignment visible</li>
+          <li><b>This Year:</b> Shift from caste-based to issue-based voting</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div id="alerts" class="hidden">
+      <h2>Alerts & Strategic Engine</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Daily & Weekly Alerts</h3>
+          <ul>
+            <li>New negative cluster detected</li>
+            <li>Social media narrative spike</li>
+            <li>Officer-level governance complaints</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Strategic Suggestions</h3>
+          <ul>
+            <li>Padayatra in 4 swing mandals</li>
+            <li>Water-focused outreach campaign</li>
+            <li>Replace inactive village leaders</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEWS -->
+<div id="news" class="hidden">
+  <h2>News & Media Intelligence</h2>
+
+  <div class="card">
+    <h3>Upload Political News Clip</h3>
+
+    <label>Level</label><br>
+    <select id="level" onchange="updateLevelUI()">
+      <option value="">Select Level</option>
+      <option>Assembly</option>
+      <option>Mandal</option>
+      <option>Panchayat</option>
+      <option>Village</option>
+      <option>Booth</option>
+    </select>
+
+    <br><br>
+
+    <label>Assembly</label><br>
+    <select id="assembly" onchange="loadMandals()">
+      <option value="">Select Assembly</option>
+      <option>Kakinada Rural</option>
+      <option>Kakinada Urban</option>
+      <option>Tuni</option>
+      <option>Prathipadu</option>
+      <option>Pedhapuram</option>
+      <option>Jaggampeta</option>
+      <option>Pithapuram</option>
+    </select>
+
+    <div id="mandalBox" style="display:none;">
+      <br><label>Mandal</label><br>
+      <select id="mandal" onchange="loadPanchayats()"></select>
+    </div>
+
+    <div id="panchayatBox" style="display:none;">
+      <br><label>Panchayat</label><br>
+      <select id="panchayat" onchange="loadVillages()"></select>
+    </div>
+
+    <div id="villageBox" style="display:none;">
+      <br><label>Village</label><br>
+      <select id="village" onchange="loadBooths()"></select>
+    </div>
+
+    <div id="boothBox" style="display:none;">
+      <br><label>Booth</label><br>
+      <select id="booth"></select>
+    </div>
+
+    <br>
+    <label>Upload Media (Photo / Video)</label><br>
+    <input type="file" id="media" accept="image/*,video/*"><br><br>
+
+    <label>Date of News</label><br>
+<input type="date" id="newsDate"><br><br>
+
+    <label>Importance (0–10)</label><br>
+    <input type="range" id="importance" min="0" max="10" value="5">
+    <span id="impVal">5</span><br><br>
+
+    <label>Impact (0–10)</label><br>
+    <input type="range" id="impact" min="0" max="10" value="5">
+    <span id="impactVal">5</span><br><br>
+
+    <label>Special Comments / Remarks</label><br>
+<textarea id="remarks" rows="3" placeholder="Enter political observations, context, leader instructions, background..." style="width:100%;"></textarea>
+<br><br>
+
+
+    <button onclick="saveNews()">Save Intelligence</button>
+
+    <p id="newsStatus"></p>
+  </div>
+
+  <br>
+
+  <div class="card">
+    <h3>Saved News Intelligence Register</h3>
+
+<div class="grid" style="margin-bottom:12px;">
+  <div class="card"><b>Total Intelligence</b><div id="totalCount" class="kpi"></div></div>
+  <div class="card"><b>High Impact (>8)</b><div id="highImpactCount" class="kpi"></div></div>
+  <div class="card"><b>Avg Impact</b><div id="avgImpact" class="kpi"></div></div>
+  <div class="card"><b>Top Assembly</b><div id="topAssembly" class="kpi" style="font-size:18px;"></div></div>
+</div>
+
+<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+  <input id="searchBox" placeholder="Search keyword..." oninput="renderTable()">
+
+  <select id="filterAssembly" onchange="renderTable()">
+    <option value="">All Assemblies</option>
+    <option>Kakinada Rural</option>
+    <option>Kakinada Urban</option>
+    <option>Tuni</option>
+    <option>Prathipadu</option>
+    <option>Pedhapuram</option>
+    <option>Jaggampeta</option>
+    <option>Pithapuram</option>
+  </select>
+
+  <select id="filterImpact" onchange="renderTable()">
+    <option value="">All Impact</option>
+    <option value="8">High Impact (8+)</option>
+    <option value="5">Medium (5+)</option>
+  </select>
+
+  <input type="date" id="filterDate" onchange="renderTable()">
+
+  <button onclick="exportExcel()">Export Excel</button>
+  <button onclick="window.print()">Export PDF</button>
+</div>
+
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+  <thead>
+    <tr style="background:#020617; color:white;">
+      <th>#</th>
+      <th>Level</th>
+      <th>Assembly</th>
+      <th>Mandal</th>
+      <th>Panchayat</th>
+      <th>Village</th>
+      <th>Booth</th>
+      <th>Importance</th>
+      <th>Impact</th>
+      <th>Remarks</th>
+      <th>Media</th>
+      <th>Time</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="newsTable"></tbody>
+</table>
+
+  </div>
+</div>
+
+    
+    <!-- Our Events -->
+    <div id="ourevents" class="hidden">
+      <h2>News & Media Intelligence</h2>
+      <div class="card">
+        Major events, tagged news articles, TV clips, local media tracking, and narrative trends.
+      </div>
+    </div>
+
+    <!-- LEADERS -->
+    <div id="leaders" class="hidden">
+  <h2>Leaders History & Power Structure</h2>
+
+  <!-- TOP BAR -->
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <input id="leaderSearch" placeholder="Search Name..." oninput="renderLeaders()">
+<input id="filterAssembly" placeholder="Assembly" oninput="renderLeaders()">
+<input id="filterMandal" placeholder="Mandal" oninput="renderLeaders()">
+<input id="filterPanchayat" placeholder="Panchayat" oninput="renderLeaders()">
+<input id="filterVillage" placeholder="Village" oninput="renderLeaders()">
+<input id="filterBooth" placeholder="Booth" oninput="renderLeaders()">
+
+    </div>
+    <button onclick="openLeaderForm()">➕ Add Leader</button>
+  </div>
+
+  <br>
+  <div id="leaderStats" class="grid"></div>
+
+  <!-- DASHBOARD LIST -->
+  <div id="leadersGrid" class="grid"></div>
+
+  <!-- FULL PROFILE VIEW -->
+  <div id="leaderProfile" class="card hidden"></div>
+</div>
+
+
+    <!-- OFFICERS -->
+    <div id="officers" class="hidden">
+      <h2>Government Officers Intelligence</h2>
+      <div class="card">
+        Current officers, posting history, performance notes, transfer archive system.
+      </div>
+    </div>
+
+    <!-- ELECTIONS -->
+    <div id="elections" class="hidden">
+      <h2>Election Results Vault (Form 20)</h2>
+      <div class="card">
+        PC • AC • Mandal • Village • Booth level results, turnout, margins, swing analytics.
+      </div>
+    </div>
+
+    <!-- SURVEYS -->
+    <div id="surveys" class="hidden">
+      <h2>Surveys & Sentiment Intelligence</h2>
+      <div class="card">
+        All surveys, village dashboards, trend comparisons, approval tracking, predictive analysis.
+      </div>
+    </div>
+
+    <!-- SOCIAL -->
+    <div id="social" class="hidden">
+      <h2>Social Media Intelligence Lab</h2>
+      <div class="card">
+        YouTube, Instagram, Facebook, X sentiment, narratives, misinformation alerts.
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div id="projects" class="hidden">
+      <h2>Government & Private Projects Tracker</h2>
+      <div class="card">
+        Approved projects, delayed works, investments, CSR programs with political relevance mapping.
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="reports" class="hidden">
+  <h2>Automated Intelligence Reports</h2>
+
+  <div class="report-container">
+
+    <div class="report-controls card">
+      <h3>Selection Panel</h3>
+
+      <select id="repAssembly">
+        <option value="">Select Assembly</option>
+      </select>
+
+      <select id="repMandal">
+        <option value="">Select Mandal</option>
+      </select>
+
+      <select id="repPanchayat">
+        <option value="">Select Panchayat</option>
+      </select>
+
+      <div class="btn-group">
+        <button class="btn primary" onclick="loadReport()">Load Report</button>
+        <button class="btn secondary" onclick="generatePDF()">Export PDF</button>
+        <button class="btn warning" onclick="clearReport()">Reset</button>
+      </div>
+    </div>
+
+    <div id="reportOutput" class="report-output card">
+      <h3>Report Preview Area</h3>
+      <p>Select location and click Load Report</p>
+    </div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+
+<script>
+/* ---------------- BASIC UI ---------------- */
+
+function show(id) {
+  document.querySelectorAll(".main > div").forEach(d => d.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+new Chart(document.getElementById("sentimentChart"), {
+  type: "line",
+  data: {
+    labels: ["Aug","Sep","Oct","Nov","Dec"],
+    datasets: [{
+      label:"Sentiment Score",
+      data:[42,46,49,51,54],
+      borderWidth:3,
+      tension:0.4
+    }]
+  }
+});
+
+importance.oninput = () => impVal.innerText = importance.value;
+impact.oninput = () => impactVal.innerText = impact.value;
+
+/* ---------------- CASCADING DATA ---------------- */
+
+const dataMap = {
+  "Kakinada Rural": { "Kakinada Rural": { "Panchayat 1": ["Village A","Village B"] }},
+  "Kakinada Urban": { "Kakinada Urban": { "Ward 1": ["Block A","Block B"] }},
+  "Tuni": { "Tuni": { "Panchayat X": ["Village X"] }}
+};
+
+function updateLevelUI(){
+  mandalBox.style.display = "none";
+  panchayatBox.style.display = "none";
+  villageBox.style.display = "none";
+  boothBox.style.display = "none";
+
+  if(level.value !== "Assembly") mandalBox.style.display = "block";
+  if(["Panchayat","Village","Booth"].includes(level.value)) panchayatBox.style.display = "block";
+  if(["Village","Booth"].includes(level.value)) villageBox.style.display = "block";
+  if(level.value === "Booth") boothBox.style.display = "block";
+}
+
+function loadMandals(){
+  mandal.innerHTML = `<option value="">Select Mandal</option>`;
+  if(!dataMap[assembly.value]) return;
+  Object.keys(dataMap[assembly.value]).forEach(m=> mandal.innerHTML += `<option>${m}</option>`);
+}
+
+function loadPanchayats(){
+  panchayat.innerHTML = `<option value="">Select Panchayat</option>`;
+  Object.keys(dataMap[assembly.value][mandal.value] || {}).forEach(p=> panchayat.innerHTML += `<option>${p}</option>`);
+}
+
+function loadVillages(){
+  village.innerHTML = `<option value="">Select Village</option>`;
+  (dataMap[assembly.value][mandal.value][panchayat.value] || []).forEach(v=> village.innerHTML += `<option>${v}</option>`);
+}
+
+function loadBooths(){
+  booth.innerHTML = `<option>Booth 1</option><option>Booth 2</option><option>Booth 3</option>`;
+}
+
+/* ---------------- NEWS INTELLIGENCE SYSTEM ---------------- */
+
+let editIndex = null;
+
+function saveNews(){
+
+  const file = media.files[0];
+
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      buildEntry(e.target.result, file.type, file.name);
+    }
+    reader.readAsDataURL(file);
+  } else {
+    buildEntry(null, null, null);
+  }
+}
+
+function buildEntry(fileData, fileType, fileName){
+
+  const entry = {
+    level: level.value,
+    assembly: assembly.value,
+    mandal: mandal.value,
+    panchayat: panchayat.value,
+    village: village.value,
+    booth: booth.value,
+    importance: importance.value,
+    impact: impact.value,
+    comments: remarks.value,
+
+    fileData: fileData,     // 🔥 actual image/video
+    fileType: fileType,
+    fileName: fileName,
+
+    date: newsDate.value || new Date().toISOString().split("T")[0], // use selected date, fallback to today
+    time: new Date().toLocaleString()
+  };
+
+  let data = JSON.parse(localStorage.getItem("newsIntel") || "[]");
+
+  if(editIndex !== null){
+    data[editIndex] = entry;
+    editIndex = null;
+    newsStatus.innerText = "Intelligence updated ✔";
+  } else {
+    data.push(entry);
+    newsStatus.innerText = "Intelligence saved ✔";
+  }
+
+  localStorage.setItem("newsIntel", JSON.stringify(data));
+  clearForm();
+  renderTable();
+};
+
+function clearForm(){
+  level.value = assembly.value = mandal.value = panchayat.value = village.value = booth.value = "";
+  specialComments.value = "";
+  importance.value = impact.value = 5;
+  impVal.innerText = impactVal.innerText = 5;
+  media.value = "";
+  newsDate.value = "";  // clear the date
+}
+
+function renderTable(){
+  const data = JSON.parse(localStorage.getItem("newsIntel") || "[]");
+
+  const asm = filterAssembly.value;
+  const imp = filterImpact.value;
+  const dt = filterDate.value;
+
+  let filtered = data.filter(d =>
+    (!asm || d.assembly === asm) &&
+    (!imp || d.impact >= imp) &&
+    (!dt || d.date === dt)
+  );
+
+  newsTable.innerHTML = "";
+
+  filtered.forEach((d,i)=>{
+    let rowColor = d.impact > 8 ? "style='background:#fee2e2'" : "";
+
+    newsTable.innerHTML += `
+      <tr ${rowColor}>
+        <td>${i+1}</td>
+        <td>${d.level}</td>
+        <td>${d.assembly}</td>
+        <td>${d.mandal||"—"}</td>
+        <td>${d.panchayat||"—"}</td>
+        <td>${d.village||"—"}</td>
+        <td>${d.booth||"—"}</td>
+        <td>${d.importance}</td>
+        <td><b>${d.impact}</b></td>
+        <td>${d.comments||"—"}</td>
+        <td>
+${d.fileData 
+    ? `<button onclick="openMedia(${i})">View</button>`
+    : "—"}
+</td>
+        <td>${d.time}</td>
+        <td>
+          <button onclick="editNews(${i})">Edit</button>
+          <button onclick="deleteNews(${i})" style="color:red;">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  updateAnalytics(data);
+}
+
+function editNews(i){
+  const d = JSON.parse(localStorage.getItem("newsIntel"))[i];
+  editIndex = i;
+
+  level.value = d.level;
+  assembly.value = d.assembly;
+  updateLevelUI();
+  loadMandals();
+
+  setTimeout(()=>{
+    mandal.value = d.mandal;
+    loadPanchayats();
+    setTimeout(()=>{
+      panchayat.value = d.panchayat;
+      loadVillages();
+      setTimeout(()=>{
+        village.value = d.village;
+        loadBooths();
+        booth.value = d.booth;
+      },150);
+    },150);
+  },150);
+
+  importance.value = d.importance;
+  impact.value = d.impact;
+  specialComments.value = d.comments;
+  impVal.innerText = d.importance;
+  impactVal.innerText = d.impact;
+
+  newsStatus.innerText = "Editing mode ✏️";
+}
+
+function deleteNews(i){
+  if(!confirm("Delete this intelligence?")) return;
+  let data = JSON.parse(localStorage.getItem("newsIntel"));
+  data.splice(i,1);
+  localStorage.setItem("newsIntel", JSON.stringify(data));
+  renderTable();
+}
+
+function clearForm(){
+  level.value = assembly.value = mandal.value = panchayat.value = village.value = booth.value = "";
+  specialComments.value = "";
+  importance.value = impact.value = 5;
+  impVal.innerText = impactVal.innerText = 5;
+  media.value = "";
+}
+
+/* ---------------- ANALYTICS ---------------- */
+
+function updateAnalytics(data){
+  totalIntel.innerText = data.length;
+  highImpact.innerText = data.filter(d=>d.impact>8).length;
+  avgImpact.innerText = data.length ? 
+    (data.reduce((a,b)=>a+Number(b.impact),0)/data.length).toFixed(1) : 0;
+}
+
+/* ---------------- EXPORT ---------------- */
+
+function exportExcel(){
+  let data = JSON.parse(localStorage.getItem("newsIntel") || "[]");
+  let csv = "Level,Assembly,Mandal,Panchayat,Village,Booth,Importance,Impact,Comments,File,Time\n";
+  data.forEach(d=>{
+    csv += `${d.level},${d.assembly},${d.mandal},${d.panchayat},${d.village},${d.booth},${d.importance},${d.impact},"${d.comments}",${d.file},${d.time}\n`;
+  });
+
+  let blob = new Blob([csv], {type:"text/csv"});
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "News_Intelligence.csv";
+  link.click();
+}
+
+renderTable();
+
+function openMedia(index){
+  const data = JSON.parse(localStorage.getItem("newsIntel"));
+  const d = data[index];
+
+  let html = "";
+
+  if(d.fileType.startsWith("image")){
+    html = `<img src="${d.fileData}" style="max-width:90%; max-height:90%; border-radius:10px;" onclick="this.requestFullscreen()">`;
+  } 
+  else if(d.fileType.startsWith("video")){
+    html = `<video src="${d.fileData}" controls autoplay style="max-width:90%; max-height:90%;" onclick="this.requestFullscreen()"></video>`;
+  }
+
+  mediaContent.innerHTML = html;
+  mediaModal.style.display = "flex";
+}
+
+function closeMedia(){
+  mediaModal.style.display = "none";
+  mediaContent.innerHTML = "";
+}
+
+/* ========= LEADER SYSTEM ========= */
+
+let editLeader = null;
+
+function openLeaderForm(){
+  leaderModal.style.display="block";
+}
+
+function closeLeaderForm(){
+  leaderModal.style.display="none";
+  document.querySelectorAll("#leaderModal input, #leaderModal textarea").forEach(i=>i.value="");
+  editLeader=null;
+}
+
+function saveLeader(){
+  const leader = {
+    name: lp_name.value,
+    number: lp_number.value,
+    gender: lp_gender.value,
+    caste: lp_caste.value,
+    category: lp_category.value,
+    religion: lp_religion.value,
+    dob: lp_dob.value,
+    party: lp_party.value,
+    partyPosition: lp_partyPosition.value,
+
+    pc: lp_pc.value,
+    ac: lp_ac.value,
+    mandal: lp_mandal.value,
+    panchayat: lp_panchayat.value,
+    village: lp_village.value,
+    booth: lp_booth.value,
+
+    familyCount: lp_familyCount.value,
+    brothers: lp_brothers.value,
+    sisters: lp_sisters.value,
+    children: lp_children.value,
+    childrenDetails: lp_childrenDetails.value,
+    health: lp_health.value,
+
+    occupation: lp_occupation.value,
+    income: lp_income.value,
+    dependents: lp_dependents.value,
+    earning: lp_earning.value,
+
+    assets: lp_assets.value,
+    activeRate: lp_activeRate.value,
+    aspiration: lp_aspiration.value,
+
+    chargesheet: lp_chargesheet.value,
+    remarks: lp_remarks.value
+  };
+
+  let data = JSON.parse(localStorage.getItem("leadersDB")||"[]");
+  if(editLeader!==null){ data[editLeader]=leader; }
+  else { data.push(leader); }
+
+  localStorage.setItem("leadersDB",JSON.stringify(data));
+  closeLeaderForm();
+  renderLeaders();
+}
+
+function renderLeaderStats(data){
+  const total = data.length;
+
+  const male = data.filter(l => l.gender?.toLowerCase() === "male").length;
+  const female = data.filter(l => l.gender?.toLowerCase() === "female").length;
+
+  const casteCount = {};
+  const partyCount = {};
+
+  data.forEach(l => {
+    if(l.caste){
+      casteCount[l.caste] = (casteCount[l.caste] || 0) + 1;
+    }
+    if(l.party){
+      partyCount[l.party] = (partyCount[l.party] || 0) + 1;
+    }
+  });
+
+  leaderStats.innerHTML = `
+    <div class="card">
+      <h2>${total}</h2>
+      <p>Total Leader Pool</p>
+    </div>
+
+    <div class="card">
+      <h2>${male} : ${female}</h2>
+      <p>Male vs Female</p>
+      <div class="bar">
+        <div style="width:${(male/total)*100}%;background:#4caf50;height:6px"></div>
+        <div style="width:${(female/total)*100}%;background:#e91e63;height:6px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Caste Distribution</h3>
+      ${Object.entries(casteCount).map(([c,n]) =>
+        `<p>${c}: ${n}</p>`
+      ).join("")}
+    </div>
+
+    <div class="card">
+      <h3>Party Distribution</h3>
+      ${Object.entries(partyCount).map(([p,n]) =>
+        `<p>${p}: ${n}</p>`
+      ).join("")}
+    </div>
+  `;
+}
+
+function renderLeaders(){
+  let data = JSON.parse(localStorage.getItem("leadersDB")||"[]");
+
+  const filtered = data.filter(l =>
+    (!leaderSearch.value || l.name.toLowerCase().includes(leaderSearch.value.toLowerCase())) &&
+    (!filterAssembly.value || l.ac?.toLowerCase().includes(filterAssembly.value.toLowerCase())) &&
+    (!filterMandal.value || l.mandal?.toLowerCase().includes(filterMandal.value.toLowerCase())) &&
+    (!filterPanchayat.value || l.panchayat?.toLowerCase().includes(filterPanchayat.value.toLowerCase())) &&
+    (!filterVillage.value || l.village?.toLowerCase().includes(filterVillage.value.toLowerCase())) &&
+    (!filterBooth.value || l.booth?.toLowerCase().includes(filterBooth.value.toLowerCase()))
+  );
+
+  renderLeaderStats(filtered);
+
+  leadersGrid.innerHTML="";
+  filtered.forEach((l,i)=>{
+    leadersGrid.innerHTML+=`
+      <div class="card" onclick="openProfile(${i})">
+        <h3>${l.name}</h3>
+        <p>${l.party} | Booth ${l.booth}</p>
+        <p>${l.village}, ${l.mandal}</p>
+        <p>Activity: ${l.activeRate}/10</p>
+      </div>`;
+  });
+}
+function renderLeaderStats(){
+
+  let data = JSON.parse(localStorage.getItem("leadersDB") || "[]");
+
+  // apply SAME filters as dashboard
+  data = data.filter(l =>
+    (!leaderSearch.value || l.name?.toLowerCase().includes(leaderSearch.value.toLowerCase())) &&
+    (!filterAssembly.value || l.ac?.toLowerCase().includes(filterAssembly.value.toLowerCase())) &&
+    (!filterMandal.value || l.mandal?.toLowerCase().includes(filterMandal.value.toLowerCase())) &&
+    (!filterPanchayat.value || l.panchayat?.toLowerCase().includes(filterPanchayat.value.toLowerCase())) &&
+    (!filterVillage.value || l.village?.toLowerCase().includes(filterVillage.value.toLowerCase())) &&
+    (!filterBooth.value || l.booth?.toLowerCase().includes(filterBooth.value.toLowerCase()))
+  );
+
+  const total = data.length;
+
+  const male = data.filter(d => d.gender?.toLowerCase() === "male").length;
+  const female = data.filter(d => d.gender?.toLowerCase() === "female").length;
+
+  const casteCounts = {};
+  const partyCounts = {};
+
+  data.forEach(d=>{
+    casteCounts[d.caste || "Unknown"] = (casteCounts[d.caste || "Unknown"] || 0) + 1;
+    partyCounts[d.party || "Unknown"] = (partyCounts[d.party || "Unknown"] || 0) + 1;
+  });
+
+  leaderStats.innerHTML = `
+    <div class="card"><div class="sub">Total Leaders</div><div class="kpi">${total}</div></div>
+    <div class="card"><div class="sub">Male</div><div class="kpi">${male}</div></div>
+    <div class="card"><div class="sub">Female</div><div class="kpi">${female}</div></div>
+    <div class="card"><div class="sub">Top Party</div><div class="kpi">${Object.keys(partyCounts)[0] || "-"}</div></div>
+
+    <div class="card" style="grid-column:span 2;">
+      <h4>Caste Distribution</h4>
+      <canvas id="casteChart"></canvas>
+    </div>
+
+    <div class="card" style="grid-column:span 2;">
+      <h4>Party Distribution</h4>
+      <canvas id="partyChart"></canvas>
+    </div>
+  `;
+
+  setTimeout(()=>{
+    new Chart(document.getElementById("casteChart"), {
+      type:"pie",
+      data:{
+        labels:Object.keys(casteCounts),
+        datasets:[{ data:Object.values(casteCounts) }]
+      }
+    });
+
+    new Chart(document.getElementById("partyChart"), {
+      type:"doughnut",
+      data:{
+        labels:Object.keys(partyCounts),
+        datasets:[{ data:Object.values(partyCounts) }]
+      }
+    });
+  },100);
+}
+
+
+function openProfile(i){
+  const l = JSON.parse(localStorage.getItem("leadersDB"))[i];
+  leaderProfile.classList.remove("hidden");
+
+  leaderProfile.innerHTML=`
+  <h2>${l.name}</h2>
+  <p>${l.party} - ${l.partyPosition}</p>
+  <hr>
+  <p><b>Personal:</b> ${l.gender}, ${l.caste}, ${l.religion}</p>
+  <p><b>Location:</b> ${l.village}, Booth ${l.booth}</p>
+  <p><b>Family:</b> ${l.children}</p>
+  <p><b>Health:</b> ${l.health}</p>
+  <p><b>Livelihood:</b> ${l.occupation}, ₹${l.income}</p>
+  <p><b>Assets:</b> ${l.assets}</p>
+  <p><b>Political Status:</b> ${l.activeRate}/10 | Aspiration: ${l.aspiration}</p>
+  <p><b>Confidential:</b> ${l.chargesheet}</p>
+  <p><b>Remarks:</b> ${l.remarks}</p>
+  <br>
+  <button onclick="editLeaderProfile(${i})">Edit</button>
+  <button onclick="leaderProfile.classList.add('hidden')">Close</button>
+  `;
+}
+
+function editLeaderProfile(i){
+  editLeader=i;
+  const l = JSON.parse(localStorage.getItem("leadersDB"))[i];
+  Object.keys(l).forEach(k=>{
+    if(document.getElementById("lp_"+k)) document.getElementById("lp_"+k).value=l[k];
+  });
+  openLeaderForm();
+}
+
+renderLeaders();
+renderLeaderStats();
+
+
+
+</script>
+
+<div id="mediaModal" style="
+display:none;
+position:fixed;
+top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.85);
+z-index:9999;
+align-items:center;
+justify-content:center;
+flex-direction:column;">
+
+  <span onclick="closeMedia()" style="
+  color:white;font-size:30px;cursor:pointer;
+  position:absolute;top:15px;right:25px;">✖</span>
+
+  <div id="mediaContent"></div>
+
+</div>
+
+<div id="leaderModal" style="
+display:none; position:fixed; inset:0;
+background:rgba(0,0,0,0.85); z-index:9999;
+overflow:auto; padding:30px;">
+
+<div class="card" style="max-width:900px; margin:auto;">
+<h2>Add / Edit Leader</h2>
+
+<h3>Personal Details</h3>
+<input id="lp_name" placeholder="Name">
+<input id="lp_number" placeholder="Mobile Number">
+<input id="lp_gender" placeholder="Gender">
+<input id="lp_caste" placeholder="Caste">
+<input id="lp_category" placeholder="Category">
+<input id="lp_religion" placeholder="Religion">
+<input id="lp_dob" type="date">
+<input id="lp_party" placeholder="Party Aligned">
+<input id="lp_partyPosition" placeholder="Party Position">
+
+<h3>Address</h3>
+<input id="lp_pc" placeholder="Parliament">
+<input id="lp_ac" placeholder="Assembly">
+<input id="lp_mandal" placeholder="Mandal">
+<input id="lp_panchayat" placeholder="Panchayat">
+<input id="lp_village" placeholder="Village">
+<input id="lp_booth" placeholder="Booth">
+
+<h3>Family</h3>
+<input id="lp_familyCount" placeholder="No of family members">
+<input id="lp_brothers" placeholder="Brothers">
+<input id="lp_sisters" placeholder="Sisters">
+<input id="lp_children" placeholder="Children names">
+
+<h3>Children Details</h3>
+<textarea id="lp_childrenDetails" placeholder="Child DOB | Education | Employment (each line one child)"></textarea>
+
+<h3>Family Health</h3>
+<textarea id="lp_health" placeholder="Self + family health details"></textarea>
+
+<h3>Livelihood</h3>
+<input id="lp_occupation" placeholder="Major family occupation">
+<input id="lp_income" placeholder="Avg monthly income">
+<input id="lp_dependents" placeholder="No of dependents">
+<input id="lp_earning" placeholder="No of earning members">
+
+<h3>Assets</h3>
+<textarea id="lp_assets" placeholder="Home, land, vehicles with description"></textarea>
+
+<h3>Political Status</h3>
+<input id="lp_activeRate" placeholder="Political activity (1-10)">
+<select id="lp_aspiration">
+  <option>Yes</option><option>No</option><option>Not Sure</option>
+</select>
+
+<h3>Confidential Chargesheet</h3>
+<textarea id="lp_chargesheet"></textarea>
+
+<h3>Consultant Remarks</h3>
+<textarea id="lp_remarks"></textarea>
+
+<br>
+<button onclick="saveLeader()">Save Leader</button>
+<button onclick="closeLeaderForm()">Cancel</button>
+</div>
+</div>
+
+
+<script src="reports.js"></script>
+
+</body>
+</html>
