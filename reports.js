@@ -21,93 +21,128 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* ---------- LOAD EXCEL ---------- */
+/* ===============================
+   MASTER DATA STORE
+================================*/
+let DB = {};
+let workbook;
 
-function loadExcel(){
 
-    fetch("data/VillageReports.xlsx")
-    .then(res => res.arrayBuffer())
-    .then(data => {
+/* ===============================
+   LOAD COMPLETE EXCEL
+================================*/
+async function loadExcel(){
 
-        workbook = XLSX.read(data,{type:"array"});
+    const response =
+        await fetch("data/Village Reports.xlsx");
 
-        const mainSheet =
-            workbook.SheetNames[0];
+    const buffer =
+        await response.arrayBuffer();
 
-        const worksheet =
-            workbook.Sheets[mainSheet];
+    workbook =
+        XLSX.read(buffer,{type:"array"});
 
-        villageData =
-            XLSX.utils.sheet_to_json(worksheet);
+    /* LOAD EACH SHEET */
 
-        console.log("Village Data:", villageData);
+    DB.demography =
+        XLSX.utils.sheet_to_json(
+            workbook.Sheets["demography"]
+        );
 
-        populateAssemblies();
+    DB.data =
+        XLSX.utils.sheet_to_json(
+            workbook.Sheets["data"]
+        );
 
-    });
+    DB.field =
+        XLSX.utils.sheet_to_json(
+            workbook.Sheets["Raw Data - Field Input"]
+        );
 
+    DB.leaders =
+        XLSX.utils.sheet_to_json(
+            workbook.Sheets["Key Leaders - past"]
+        );
+
+    DB.caste =
+        XLSX.utils.sheet_to_json(
+            workbook.Sheets["Caste"]
+        );
+
+    DB.election =
+        XLSX.utils.sheet_to_json(
+            workbook.Sheets["F20-2024"]
+        );
+
+    console.log("DATABASE LOADED", DB);
+
+    populateAssemblies();
 }
-
 
 /* ---------- DROPDOWNS ---------- */
 
 function populateAssemblies(){
 
-    const assemblies =
-        [...new Set(
-            villageData.map(r=>r.Assembly)
-        )];
+ const assemblies =
+ [...new Set(
+   DB.demography.map(r=>r.Assembly)
+ )];
 
-    repAssembly.innerHTML =
-        `<option>Select Assembly</option>`;
+ repAssembly.innerHTML =
+ `<option>Select Assembly</option>`;
 
-    assemblies.forEach(a=>{
-        if(a)
-        repAssembly.innerHTML+=`<option>${a}</option>`;
-    });
+ assemblies.forEach(a=>{
+   if(a)
+   repAssembly.innerHTML +=
+   `<option>${a}</option>`;
+ });
 
-    repAssembly.onchange = populateMandals;
+ repAssembly.onchange = populateMandals;
 }
 
 
 function populateMandals(){
 
-    const mandals =
-        [...new Set(
-            villageData
-            .filter(r=>r.Assembly===repAssembly.value)
-            .map(r=>r.Mandal)
-        )];
+ const mandals =
+ [...new Set(
+   DB.demography
+   .filter(r =>
+      r.Assembly === repAssembly.value
+   )
+   .map(r=>r.Mandal)
+ )];
 
-    repMandal.innerHTML=
-        `<option>Select Mandal</option>`;
+ repMandal.innerHTML =
+ `<option>Select Mandal</option>`;
 
-    mandals.forEach(m=>{
-        repMandal.innerHTML+=`<option>${m}</option>`;
-    });
+ mandals.forEach(m=>{
+   repMandal.innerHTML +=
+   `<option>${m}</option>`;
+ });
 
-    repMandal.onchange = populatePanchayats;
+ repMandal.onchange = populatePanchayats;
 }
 
 
 function populatePanchayats(){
 
-    const pans =
-        [...new Set(
-            villageData
-            .filter(r=>
-                r.Assembly===repAssembly.value &&
-                r.Mandal===repMandal.value
-            )
-            .map(r=>r.Panchayat)
-        )];
+ const pans =
+ [...new Set(
+   DB.demography
+   .filter(r =>
+      r.Assembly === repAssembly.value &&
+      r.Mandal === repMandal.value
+   )
+   .map(r=>r.Village)
+ )];
 
-    repPanchayat.innerHTML=
-        `<option>Select Panchayat</option>`;
+ repPanchayat.innerHTML =
+ `<option>Select Panchayat</option>`;
 
-    pans.forEach(p=>{
-        repPanchayat.innerHTML+=`<option>${p}</option>`;
-    });
+ pans.forEach(p=>{
+   repPanchayat.innerHTML+=
+   `<option>${p}</option>`;
+ });
 }
 
 
@@ -115,22 +150,26 @@ function populatePanchayats(){
 
 function loadReport(){
 
-    const row =
-        villageData.find(r=>
-            r.Assembly===repAssembly.value &&
-            r.Mandal===repMandal.value &&
-            r.Panchayat===repPanchayat.value
-        );
+ const A = repAssembly.value;
+ const M = repMandal.value;
+ const V = repPanchayat.value;
 
-    if(!row){
-        reportOutput.innerHTML="No Data Found";
-        return;
-    }
+ const demo =
+   DB.demography.find(r =>
+     r.Assembly===A &&
+     r.Mandal===M &&
+     r.Village===V
+   );
 
-    buildSummary(row);
-    buildCasteChart(row);
+ const caste =
+   DB.caste.filter(r =>
+     r.Assembly===A &&
+     r["Village / Ward"]===V
+   );
+
+ buildDemography(demo);
+ buildCaste(caste);
 }
-
 
 /* ---------- SUMMARY CARDS ---------- */
 
@@ -213,4 +252,71 @@ function resetReport(){
     reportOutput.innerHTML=
         `<h3>Report Preview Area</h3>
          <p>Select location and click Load Report</p>`;
+}
+
+database = {
+   demography: [],
+   data: [],
+   field: [],
+   leaders: [],
+   caste: [],
+   election: []
+}
+
+function buildDemography(d){
+
+reportOutput.innerHTML += `
+
+<h3>Demographics</h3>
+
+<div class="grid">
+
+<div class="card">
+<div class="sub">18-24</div>
+<div class="kpi">${d["18-24"]}</div>
+</div>
+
+<div class="card">
+<div class="sub">25-44</div>
+<div class="kpi">${d["25-44"]}</div>
+</div>
+
+<div class="card">
+<div class="sub">45-59</div>
+<div class="kpi">${d["45-59"]}</div>
+</div>
+
+<div class="card">
+<div class="sub">60+</div>
+<div class="kpi">${d["60+"]}</div>
+</div>
+
+</div>
+`;
+}
+
+function buildCaste(rows){
+
+let html =
+`<h3>Prominent Castes</h3>
+<table>
+<tr>
+<th>Caste</th>
+<th>Votes</th>
+</tr>`;
+
+rows
+.sort((a,b)=>b.Votes-a.Votes)
+.slice(0,6)
+.forEach(r=>{
+ html+=`
+ <tr>
+ <td>${r.Caste}</td>
+ <td>${r.Votes}</td>
+ </tr>`;
+});
+
+html+=`</table>`;
+
+reportOutput.innerHTML += html;
 }
