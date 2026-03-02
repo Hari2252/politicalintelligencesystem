@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadExcel(){
 
 /* ---------- DEMOGRAPHY ---------- */
-const demoRes = await fetch("data/VillageReports.xlsx");
+const demoRes = await fetch("./data/VillageReports.xlsx");
 const demoBuf = await demoRes.arrayBuffer();
 
 const demoWB = XLSX.read(demoBuf,{type:"array"});
@@ -310,3 +310,9 @@ datasets:[{data:top.map(r=>r["votes"])}]
 },100);
 
 }
+
+const BASE = window.location.pathname.includes("github")
+    ? "/politicalintelligencesystem/"
+    : "./";
+
+fetch(BASE + "data/VillageReports.xlsx");
