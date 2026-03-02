@@ -29,7 +29,7 @@ demoWB.Sheets[demoWB.SheetNames[0]]
 
 
 /* ---------- CASTE DATA ---------- */
-const casteRes = await fetch("data/Caste data.xlsx");
+const casteRes = await fetch("./data/Caste data.xlsx");
 const casteBuf = await casteRes.arrayBuffer();
 
 const casteWB = XLSX.read(casteBuf,{type:"array"});
@@ -315,4 +315,4 @@ const BASE = window.location.pathname.includes("github")
     ? "/politicalintelligencesystem/"
     : "./";
 
-fetch(BASE + "data/VillageReports.xlsx");
+fetch(BASE + "./data/VillageReports.xlsx");
