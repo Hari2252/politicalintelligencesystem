@@ -1,256 +1,236 @@
-/* =========================================
-   AUTOMATED INTELLIGENCE REPORT ENGINE
-========================================= */
+/* ===============================
+   AUTOMATED REPORT ENGINE
+=============================== */
 
 let DB = {};
 let workbook;
 
-/* =========================================
-   INIT
-========================================= */
-
 document.addEventListener("DOMContentLoaded", () => {
-
     loadExcel();
-
-    document.querySelector(".primary")
-        .addEventListener("click", loadReport);
-
-    document.querySelector(".warning")
-        .addEventListener("click", resetReport);
-
 });
 
+/* ===============================
+   LOAD EXCEL
+=============================== */
 
-/* =========================================
-   LOAD COMPLETE EXCEL (ALL SHEETS)
-========================================= */
+async function loadExcel(){
 
-async function loadExcel() {
+const response = await fetch("data/VillageReports.xlsx");
+const buffer = await response.arrayBuffer();
 
-    try {
+workbook = XLSX.read(buffer,{type:"array"});
 
-        const response = await fetch("data/VillageReports.xlsx");
-        const buffer = await response.arrayBuffer();
+/* AUTO PICK FIRST TWO SHEETS */
 
-        workbook = XLSX.read(buffer, { type: "array" });
+const sheetNames = workbook.SheetNames;
 
-        DB.demography = XLSX.utils.sheet_to_json(
-            workbook.Sheets["demography"] || []
-        );
+DB.demography = XLSX.utils.sheet_to_json(
+workbook.Sheets[sheetNames[0]]
+).map(r=>normalizeKeys(r));
 
-        DB.data = XLSX.utils.sheet_to_json(
-            workbook.Sheets["data"] || []
-        );
+DB.caste = XLSX.utils.sheet_to_json(
+workbook.Sheets[sheetNames[1]]
+).map(r=>normalizeKeys(r));
 
-        DB.field = XLSX.utils.sheet_to_json(
-            workbook.Sheets["Raw Data - Field Input"] || []
-        );
+console.log("Sheets Found:", sheetNames);
+console.log("Demography:", DB.demography);
+console.log("Caste:", DB.caste);
 
-        DB.leaders = XLSX.utils.sheet_to_json(
-            workbook.Sheets["Key Leaders - past"] || []
-        );
-
-        DB.caste = XLSX.utils.sheet_to_json(
-            workbook.Sheets["Caste"] || []
-        );
-
-        DB.election = XLSX.utils.sheet_to_json(
-            workbook.Sheets["F20-2024"] || []
-        );
-
-        console.log("Database Loaded:", DB);
-
-        populateAssemblies();
-
-    } catch (err) {
-        console.error("Excel Load Failed:", err);
-    }
+populateAssemblies();
 }
 
 
-/* =========================================
-   DROPDOWN LOGIC
-========================================= */
+/* ===============================
+   COLUMN NORMALIZER ⭐ FIX
+=============================== */
 
-function populateAssemblies() {
+function normalizeKeys(row){
 
-    const assemblies = [...new Set(
-        DB.demography.map(r => r.Assembly).filter(Boolean)
-    )];
+let obj={};
 
-    repAssembly.innerHTML = `<option value="">Select Assembly</option>`;
+Object.keys(row).forEach(k=>{
+obj[k.trim().toLowerCase()] = row[k];
+});
 
-    assemblies.forEach(a => {
-        repAssembly.innerHTML += `<option>${a}</option>`;
-    });
-
-    repAssembly.onchange = populateMandals;
+return obj;
 }
 
 
-function populateMandals() {
+/* ===============================
+   DROPDOWNS
+=============================== */
 
-    const mandals = [...new Set(
-        DB.demography
-            .filter(r => r.Assembly === repAssembly.value)
-            .map(r => r.Mandal)
-            .filter(Boolean)
-    )];
+function populateAssemblies(){
 
-    repMandal.innerHTML = `<option value="">Select Mandal</option>`;
+const assemblies=[
+...new Set(
+DB.demography.map(r=>r["assembly"])
+)
+];
 
-    mandals.forEach(m => {
-        repMandal.innerHTML += `<option>${m}</option>`;
-    });
+repAssembly.innerHTML=
+`<option value="">Select Assembly</option>`;
 
-    repMandal.onchange = populatePanchayats;
+assemblies.forEach(a=>{
+if(a)
+repAssembly.innerHTML+=`<option>${a}</option>`;
+});
+
+repAssembly.onchange=populateMandals;
 }
 
 
-function populatePanchayats() {
+function populateMandals(){
 
-    const villages = [...new Set(
-        DB.demography
-            .filter(r =>
-                r.Assembly === repAssembly.value &&
-                r.Mandal === repMandal.value
-            )
-            .map(r => r.Village)
-            .filter(Boolean)
-    )];
+const mandals=[
+...new Set(
+DB.demography
+.filter(r=>r["assembly"]===repAssembly.value)
+.map(r=>r["mandal"])
+)
+];
 
-    repPanchayat.innerHTML = `<option value="">Select Panchayat</option>`;
+repMandal.innerHTML=
+`<option value="">Select Mandal</option>`;
 
-    villages.forEach(v => {
-        repPanchayat.innerHTML += `<option>${v}</option>`;
-    });
+mandals.forEach(m=>{
+repMandal.innerHTML+=`<option>${m}</option>`;
+});
+
+repMandal.onchange=populatePanchayats;
 }
 
 
-/* =========================================
-   LOAD REPORT (MASTER FILTER)
-========================================= */
+function populatePanchayats(){
 
-function loadReport() {
+const villages=[
+...new Set(
+DB.demography
+.filter(r=>
+r["assembly"]===repAssembly.value &&
+r["mandal"]===repMandal.value
+)
+.map(r=>r["village"])
+)
+];
 
-    const A = repAssembly.value;
-    const M = repMandal.value;
-    const V = repPanchayat.value;
+repPanchayat.innerHTML=
+`<option value="">Select Panchayat</option>`;
 
-    if (!A || !M || !V) {
-        alert("Please select Assembly, Mandal and Panchayat");
-        return;
-    }
-
-    reportOutput.innerHTML = ""; // Clear old report
-
-    const demo = DB.demography.find(r =>
-        r.Assembly === A &&
-        r.Mandal === M &&
-        r.Village === V
-    );
-
-    const caste = DB.caste.filter(r =>
-        r.Assembly === A &&
-        (r["Village / Ward"] === V || r.Village === V)
-    );
-
-    buildDemography(demo);
-    buildCaste(caste);
+villages.forEach(v=>{
+repPanchayat.innerHTML+=`<option>${v}</option>`;
+});
 }
 
 
-/* =========================================
-   DEMOGRAPHY SECTION
-========================================= */
+/* ===============================
+   LOAD REPORT
+=============================== */
 
-function buildDemography(d) {
+function loadReport(){
 
-    if (!d) {
-        reportOutput.innerHTML += "<p>No Demography Data Found</p>";
-        return;
-    }
+const A=repAssembly.value;
+const M=repMandal.value;
+const V=repPanchayat.value;
 
-    reportOutput.innerHTML += `
-        <h3>Demographics</h3>
+reportOutput.innerHTML="";
 
-        <div class="grid">
+const demo=
+DB.demography.find(r=>
+r["assembly"]===A &&
+r["mandal"]===M &&
+r["village"]===V
+);
 
-            <div class="card">
-                <div class="sub">18-24</div>
-                <div class="kpi">${d["18-24"] || 0}</div>
-            </div>
+const caste=
+DB.caste.filter(r=>
+r["assembly"]===A &&
+(
+r["village / ward"]===V ||
+r["village"]===V
+)
+);
 
-            <div class="card">
-                <div class="sub">25-44</div>
-                <div class="kpi">${d["25-44"] || 0}</div>
-            </div>
-
-            <div class="card">
-                <div class="sub">45-59</div>
-                <div class="kpi">${d["45-59"] || 0}</div>
-            </div>
-
-            <div class="card">
-                <div class="sub">60+</div>
-                <div class="kpi">${d["60+"] || 0}</div>
-            </div>
-
-        </div>
-    `;
+buildDemography(demo);
+buildCaste(caste);
 }
 
 
-/* =========================================
-   CASTE SECTION
-========================================= */
+/* ===============================
+   DEMOGRAPHY
+=============================== */
 
-function buildCaste(rows) {
+function buildDemography(d){
 
-    if (!rows || rows.length === 0) {
-        reportOutput.innerHTML += "<p>No Caste Data Found</p>";
-        return;
-    }
+if(!d){
+reportOutput.innerHTML+="<h3>No Demography Data</h3>";
+return;
+}
 
-    let html = `
-        <h3>Prominent Castes</h3>
-        <table style="width:100%; border-collapse:collapse;">
-            <tr style="background:#1e293b;color:white;">
-                <th style="padding:8px;">Caste</th>
-                <th style="padding:8px;">Votes</th>
-            </tr>
-    `;
+reportOutput.innerHTML+=`
 
-    rows
-        .sort((a, b) => (b.Votes || 0) - (a.Votes || 0))
-        .slice(0, 6)
-        .forEach(r => {
-            html += `
-                <tr>
-                    <td style="padding:8px;">${r.Caste || "-"}</td>
-                    <td style="padding:8px;">${r.Votes || 0}</td>
-                </tr>
-            `;
-        });
+<h3>Demographics</h3>
 
-    html += `</table>`;
+<div class="grid">
 
-    reportOutput.innerHTML += html;
+<div class="card"><b>18-24</b><br>${d["18-24"]||0}</div>
+<div class="card"><b>25-44</b><br>${d["25-44"]||0}</div>
+<div class="card"><b>45-59</b><br>${d["45-59"]||0}</div>
+<div class="card"><b>60+</b><br>${d["60+"]||0}</div>
+
+</div>
+`;
 }
 
 
-/* =========================================
+/* ===============================
+   CASTE
+=============================== */
+
+function buildCaste(rows){
+
+if(!rows.length){
+reportOutput.innerHTML+="<p>No caste data</p>";
+return;
+}
+
+let html=`
+<h3>Prominent Castes</h3>
+<table border="1" width="100%">
+<tr>
+<th>Caste</th>
+<th>Votes</th>
+</tr>
+`;
+
+rows
+.sort((a,b)=>(b["votes"]||0)-(a["votes"]||0))
+.slice(0,6)
+.forEach(r=>{
+html+=`
+<tr>
+<td>${r["caste"]||"-"}</td>
+<td>${r["votes"]||0}</td>
+</tr>`;
+});
+
+html+="</table>";
+
+reportOutput.innerHTML+=html;
+}
+
+
+/* ===============================
    RESET
-========================================= */
+=============================== */
 
-function resetReport() {
+function resetReport(){
 
-    repAssembly.value = "";
-    repMandal.innerHTML = `<option>Select Mandal</option>`;
-    repPanchayat.innerHTML = `<option>Select Panchayat</option>`;
+repAssembly.value="";
+repMandal.innerHTML=`<option>Select Mandal</option>`;
+repPanchayat.innerHTML=`<option>Select Panchayat</option>`;
 
-    reportOutput.innerHTML =
-        `<h3>Report Preview Area</h3>
-         <p>Select location and click Load Report</p>`;
+reportOutput.innerHTML=
+`<h3>Report Preview Area</h3>
+<p>Select location and click Load Report</p>`;
 }

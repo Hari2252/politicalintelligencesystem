@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>Constituency Political Intelligence System</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 
  
 
@@ -381,9 +384,9 @@
       <select id="repPanchayat"></select>
 
       <div class="btn-group">
-        <button class="btn primary">Load Report</button>
+        <button class="btn primary" onclick="loadReport()"></button>
         <button class="btn secondary">Export PDF</button>
-        <button class="btn warning">Reset</button>
+        <button class="btn warning" onclick="resetReport()"></button>
       </div>
     </div>
 
@@ -399,6 +402,9 @@
 </div>
 
 <script>
+
+let casteChartInstance = null;
+let partyChartInstance = null;
 /* ---------------- BASIC UI ---------------- */
 
 function show(id) {
@@ -851,23 +857,47 @@ function renderLeaderStats(){
   `;
 
   setTimeout(()=>{
-    new Chart(document.getElementById("casteChart"), {
-      type:"pie",
-      data:{
-        labels:Object.keys(casteCounts),
-        datasets:[{ data:Object.values(casteCounts) }]
-      }
-    });
+    setTimeout(()=>{
 
-    new Chart(document.getElementById("partyChart"), {
-      type:"doughnut",
-      data:{
-        labels:Object.keys(partyCounts),
-        datasets:[{ data:Object.values(partyCounts) }]
-      }
-    });
-  },100);
+const casteCanvas =
+document.getElementById("casteChart");
+
+const partyCanvas =
+document.getElementById("partyChart");
+
+/* DESTROY OLD CHARTS */
+if(casteChartInstance){
+casteChartInstance.destroy();
 }
+
+if(partyChartInstance){
+partyChartInstance.destroy();
+}
+
+/* CREATE NEW */
+casteChartInstance =
+new Chart(casteCanvas,{
+type:"pie",
+data:{
+labels:Object.keys(casteCounts),
+datasets:[{
+data:Object.values(casteCounts)
+}]
+}
+});
+
+partyChartInstance =
+new Chart(partyCanvas,{
+type:"doughnut",
+data:{
+labels:Object.keys(partyCounts),
+datasets:[{
+data:Object.values(partyCounts)
+}]
+}
+});
+
+},100););
 
 
 function openProfile(i){
@@ -993,8 +1023,7 @@ overflow:auto; padding:30px;">
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="reports.js"></script>
 
 
