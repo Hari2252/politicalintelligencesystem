@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<>
 <head>
   <meta charset="UTF-8">
   <title>Constituency Political Intelligence System</title>
@@ -7,10 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-
- 
-
-  <!-- External CSS -->
   <link rel="stylesheet" href="reports.css">
 
   <style>
@@ -46,7 +42,7 @@
 
 </head>
 
-<body>
+<>
 
 <header>🏛️ Kakinada - Constituency Political Intelligence System</header>
 
@@ -75,7 +71,6 @@
 
   <div class="main">
 
-    <!-- DASHBOARD -->
     <div id="dashboard">
       <h2>Command Center</h2>
 
@@ -106,7 +101,6 @@
       </div>
     </div>
 
-    <!-- MAP -->
     <div id="map" class="hidden">
       <h2>Interactive Political Map</h2>
       <div class="map-box">
@@ -118,7 +112,6 @@
       </div>
     </div>
 
-    <!-- EVENTS -->
     <div id="events" class="hidden">
       <h2>Top Political Events & Situations</h2>
       <div class="card">
@@ -131,7 +124,6 @@
       </div>
     </div>
 
-    <!-- ALERTS -->
     <div id="alerts" class="hidden">
       <h2>Alerts & Strategic Engine</h2>
       <div class="grid">
@@ -154,146 +146,140 @@
       </div>
     </div>
 
-    <!-- NEWS -->
-<div id="news" class="hidden">
-  <h2>News & Media Intelligence</h2>
+    <div id="news" class="hidden">
+      <h2>News & Media Intelligence</h2>
 
-  <div class="card">
-    <h3>Upload Political News Clip</h3>
+      <div class="card">
+        <h3>Upload Political News Clip</h3>
 
-    <label>Level</label><br>
-    <select id="level" onchange="updateLevelUI()">
-      <option value="">Select Level</option>
-      <option>Assembly</option>
-      <option>Mandal</option>
-      <option>Panchayat</option>
-      <option>Village</option>
-      <option>Booth</option>
-    </select>
+        <label>Level</label><br>
+        <select id="level" onchange="updateLevelUI()">
+          <option value="">Select Level</option>
+          <option>Assembly</option>
+          <option>Mandal</option>
+          <option>Panchayat</option>
+          <option>Village</option>
+          <option>Booth</option>
+        </select>
 
-    <br><br>
+        <br><br>
 
-    <label>Assembly</label><br>
-    <select id="assembly" onchange="loadMandals()">
-      <option value="">Select Assembly</option>
-      <option>Kakinada Rural</option>
-      <option>Kakinada Urban</option>
-      <option>Tuni</option>
-      <option>Prathipadu</option>
-      <option>Pedhapuram</option>
-      <option>Jaggampeta</option>
-      <option>Pithapuram</option>
-    </select>
+        <label>Assembly</label><br>
+        <select id="assembly" onchange="loadMandals()">
+          <option value="">Select Assembly</option>
+          <option>Kakinada Rural</option>
+          <option>Kakinada Urban</option>
+          <option>Tuni</option>
+          <option>Prathipadu</option>
+          <option>Pedhapuram</option>
+          <option>Jaggampeta</option>
+          <option>Pithapuram</option>
+        </select>
 
-    <div id="mandalBox" style="display:none;">
-      <br><label>Mandal</label><br>
-      <select id="mandal" onchange="loadPanchayats()"></select>
+        <div id="mandalBox" style="display:none;">
+          <br><label>Mandal</label><br>
+          <select id="mandal" onchange="loadPanchayats()"></select>
+        </div>
+
+        <div id="panchayatBox" style="display:none;">
+          <br><label>Panchayat</label><br>
+          <select id="panchayat" onchange="loadVillages()"></select>
+        </div>
+
+        <div id="villageBox" style="display:none;">
+          <br><label>Village</label><br>
+          <select id="village" onchange="loadBooths()"></select>
+        </div>
+
+        <div id="boothBox" style="display:none;">
+          <br><label>Booth</label><br>
+          <select id="booth"></select>
+        </div>
+
+        <br>
+        <label>Upload Media (Photo / Video)</label><br>
+        <input type="file" id="media" accept="image/*,video/*"><br><br>
+
+        <label>Date of News</label><br>
+        <input type="date" id="newsDate"><br><br>
+
+        <label>Importance (0–10)</label><br>
+        <input type="range" id="importance" min="0" max="10" value="5">
+        <span id="impVal">5</span><br><br>
+
+        <label>Impact (0–10)</label><br>
+        <input type="range" id="impact" min="0" max="10" value="5">
+        <span id="impactVal">5</span><br><br>
+
+        <label>Special Comments / Remarks</label><br>
+        <textarea id="remarks" rows="3" placeholder="Enter political observations, context, leader instructions, background..." style="width:100%;"></textarea>
+        <br><br>
+
+        <button onclick="saveNews()">Save Intelligence</button>
+        <p id="newsStatus"></p>
+      </div>
+
+      <br>
+
+      <div class="card">
+        <h3>Saved News Intelligence Register</h3>
+
+        <div class="grid" style="margin-bottom:12px;">
+          <div class="card"><b>Total Intelligence</b><div id="totalCount" class="kpi"></div></div>
+          <div class="card"><b>High Impact (>8)</b><div id="highImpactCount" class="kpi"></div></div>
+          <div class="card"><b>Avg Impact</b><div id="avgImpact" class="kpi"></div></div>
+          <div class="card"><b>Top Assembly</b><div id="topAssembly" class="kpi" style="font-size:18px;"></div></div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+          <input id="searchBox" placeholder="Search keyword..." oninput="renderTable()">
+
+          <select id="newsAssemblyFilter" onchange="renderTable()">
+            <option value="">All Assemblies</option>
+            <option>Kakinada Rural</option>
+            <option>Kakinada Urban</option>
+            <option>Tuni</option>
+            <option>Prathipadu</option>
+            <option>Pedhapuram</option>
+            <option>Jaggampeta</option>
+            <option>Pithapuram</option>
+          </select>
+
+          <select id="filterImpact" onchange="renderTable()">
+            <option value="">All Impact</option>
+            <option value="8">High Impact (8+)</option>
+            <option value="5">Medium (5+)</option>
+          </select>
+
+          <input type="date" id="filterDate" onchange="renderTable()">
+          <button onclick="exportExcel()">Export Excel</button>
+          <button onclick="window.print()">Export PDF</button>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead>
+            <tr style="background:#020617; color:white;">
+              <th>#</th>
+              <th>Level</th>
+              <th>Assembly</th>
+              <th>Mandal</th>
+              <th>Panchayat</th>
+              <th>Village</th>
+              <th>Booth</th>
+              <th>Importance</th>
+              <th>Impact</th>
+              <th>Remarks</th>
+              <th>Media</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="newsTable"></tbody>
+        </table>
+
+      </div>
     </div>
 
-    <div id="panchayatBox" style="display:none;">
-      <br><label>Panchayat</label><br>
-      <select id="panchayat" onchange="loadVillages()"></select>
-    </div>
-
-    <div id="villageBox" style="display:none;">
-      <br><label>Village</label><br>
-      <select id="village" onchange="loadBooths()"></select>
-    </div>
-
-    <div id="boothBox" style="display:none;">
-      <br><label>Booth</label><br>
-      <select id="booth"></select>
-    </div>
-
-    <br>
-    <label>Upload Media (Photo / Video)</label><br>
-    <input type="file" id="media" accept="image/*,video/*"><br><br>
-
-    <label>Date of News</label><br>
-<input type="date" id="newsDate"><br><br>
-
-    <label>Importance (0–10)</label><br>
-    <input type="range" id="importance" min="0" max="10" value="5">
-    <span id="impVal">5</span><br><br>
-
-    <label>Impact (0–10)</label><br>
-    <input type="range" id="impact" min="0" max="10" value="5">
-    <span id="impactVal">5</span><br><br>
-
-    <label>Special Comments / Remarks</label><br>
-<textarea id="remarks" rows="3" placeholder="Enter political observations, context, leader instructions, background..." style="width:100%;"></textarea>
-<br><br>
-
-
-    <button onclick="saveNews()">Save Intelligence</button>
-
-    <p id="newsStatus"></p>
-  </div>
-
-  <br>
-
-  <div class="card">
-    <h3>Saved News Intelligence Register</h3>
-
-<div class="grid" style="margin-bottom:12px;">
-  <div class="card"><b>Total Intelligence</b><div id="totalCount" class="kpi"></div></div>
-  <div class="card"><b>High Impact (>8)</b><div id="highImpactCount" class="kpi"></div></div>
-  <div class="card"><b>Avg Impact</b><div id="avgImpact" class="kpi"></div></div>
-  <div class="card"><b>Top Assembly</b><div id="topAssembly" class="kpi" style="font-size:18px;"></div></div>
-</div>
-
-<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
-  <input id="searchBox" placeholder="Search keyword..." oninput="renderTable()">
-
-  <select id="newsAssemblyFilter" onchange="renderTable()">
-    <option value="">All Assemblies</option>
-    <option>Kakinada Rural</option>
-    <option>Kakinada Urban</option>
-    <option>Tuni</option>
-    <option>Prathipadu</option>
-    <option>Pedhapuram</option>
-    <option>Jaggampeta</option>
-    <option>Pithapuram</option>
-  </select>
-
-  <select id="filterImpact" onchange="renderTable()">
-    <option value="">All Impact</option>
-    <option value="8">High Impact (8+)</option>
-    <option value="5">Medium (5+)</option>
-  </select>
-
-  <input type="date" id="filterDate" onchange="renderTable()">
-
-  <button onclick="exportExcel()">Export Excel</button>
-  <button onclick="window.print()">Export PDF</button>
-</div>
-
-    <table style="width:100%; border-collapse:collapse; font-size:13px;">
-  <thead>
-    <tr style="background:#020617; color:white;">
-      <th>#</th>
-      <th>Level</th>
-      <th>Assembly</th>
-      <th>Mandal</th>
-      <th>Panchayat</th>
-      <th>Village</th>
-      <th>Booth</th>
-      <th>Importance</th>
-      <th>Impact</th>
-      <th>Remarks</th>
-      <th>Media</th>
-      <th>Time</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="newsTable"></tbody>
-</table>
-
-  </div>
-</div>
-
-    
-    <!-- Our Events -->
     <div id="ourevents" class="hidden">
       <h2>News & Media Intelligence</h2>
       <div class="card">
@@ -301,36 +287,29 @@
       </div>
     </div>
 
-    <!-- LEADERS -->
     <div id="leaders" class="hidden">
-  <h2>Leaders History & Power Structure</h2>
+      <h2>Leaders History & Power Structure</h2>
 
-  <!-- TOP BAR -->
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <div>
-      <input id="leaderSearch" placeholder="Search Name..." oninput="renderLeaders()">
-<input id="leaderAssembly" placeholder="Assembly" oninput="renderLeaders()">
-<input id="filterMandal" placeholder="Mandal" oninput="renderLeaders()">
-<input id="filterPanchayat" placeholder="Panchayat" oninput="renderLeaders()">
-<input id="filterVillage" placeholder="Village" oninput="renderLeaders()">
-<input id="filterBooth" placeholder="Booth" oninput="renderLeaders()">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <input id="leaderSearch" placeholder="Search Name..." oninput="renderLeaders()">
+          <input id="leaderAssembly" placeholder="Assembly" oninput="renderLeaders()">
+          <input id="filterMandal" placeholder="Mandal" oninput="renderLeaders()">
+          <input id="filterPanchayat" placeholder="Panchayat" oninput="renderLeaders()">
+          <input id="filterVillage" placeholder="Village" oninput="renderLeaders()">
+          <input id="filterBooth" placeholder="Booth" oninput="renderLeaders()">
+        </div>
+        <button onclick="openLeaderForm()">➕ Add Leader</button>
+      </div>
 
+      <br>
+      <div id="leaderStats" class="grid"></div>
+
+      <div id="leadersGrid" class="grid"></div>
+
+      <div id="leaderProfile" class="card hidden"></div>
     </div>
-    <button onclick="openLeaderForm()">➕ Add Leader</button>
-  </div>
 
-  <br>
-  <div id="leaderStats" class="grid"></div>
-
-  <!-- DASHBOARD LIST -->
-  <div id="leadersGrid" class="grid"></div>
-
-  <!-- FULL PROFILE VIEW -->
-  <div id="leaderProfile" class="card hidden"></div>
-</div>
-
-
-    <!-- OFFICERS -->
     <div id="officers" class="hidden">
       <h2>Government Officers Intelligence</h2>
       <div class="card">
@@ -338,7 +317,6 @@
       </div>
     </div>
 
-    <!-- ELECTIONS -->
     <div id="elections" class="hidden">
       <h2>Election Results Vault (Form 20)</h2>
       <div class="card">
@@ -346,7 +324,6 @@
       </div>
     </div>
 
-    <!-- SURVEYS -->
     <div id="surveys" class="hidden">
       <h2>Surveys & Sentiment Intelligence</h2>
       <div class="card">
@@ -354,7 +331,6 @@
       </div>
     </div>
 
-    <!-- SOCIAL -->
     <div id="social" class="hidden">
       <h2>Social Media Intelligence Lab</h2>
       <div class="card">
@@ -362,7 +338,6 @@
       </div>
     </div>
 
-    <!-- PROJECTS -->
     <div id="projects" class="hidden">
       <h2>Government & Private Projects Tracker</h2>
       <div class="card">
@@ -370,43 +345,44 @@
       </div>
     </div>
 
-    <!-- REPORTS -->
     <div id="reports" class="hidden">
-  <h2>Automated Intelligence Reports</h2>
+      <h2>Automated Intelligence Reports</h2>
 
-  <div class="report-container">
+      <div class="reports-layout">
 
-    <div class="report-controls card">
-      <h3>Selection Panel</h3>
+      <!-- COLUMN 1 : SELECTION PANEL -->
+      <div class="reports-selection card">
+        <h3>Selection Panel</h3>
+        <select id="repAssembly"></select>
+        <select id="repMandal"></select>
+        <select id="repPanchayat"></select>
 
-      <select id="repAssembly"></select>
-      <select id="repMandal"></select>
-      <select id="repPanchayat"></select>
-
-      <div class="btn-group">
-        <button class="btn primary" onclick="loadReport()"></button>
-        <button class="btn secondary">Export PDF</button>
-        <button class="btn warning" onclick="resetReport()"></button>
-      </div>
+        <div class="btn-group" style="margin-top:15px;">
+            <button class="btn primary" onclick="loadReport()">Load Report</button>
+            <button class="btn secondary">Export PDF</button>
+            <button class="btn warning" onclick="resetReport()">Reset</button>
+        </div>
     </div>
 
-    <div id="reportOutput" class="report-output card">
-      <h3>Report Preview Area</h3>
-      <p>Select location and click Load Report</p>
+    <!-- COLUMN 2 : REPORT AREA -->
+    <div id="reportOutput" class="reports-output">
+        <div class="card">
+            <h3>Report Preview Area</h3>
+            <p>Select location and click Load Report</p>
+        </div>
     </div>
 
-  </div>
 </div>
+    </div>
 
   </div>
 </div>
 
 <script>
-
 let casteChartInstance = null;
 let partyChartInstance = null;
-/* ---------------- BASIC UI ---------------- */
 
+/* ---------------- BASIC UI ---------------- */
 function show(id) {
   document.querySelectorAll(".main > div").forEach(d => d.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
@@ -425,11 +401,22 @@ new Chart(document.getElementById("sentimentChart"), {
   }
 });
 
-importance.oninput = () => impVal.innerText = importance.value;
-impact.oninput = () => impactVal.innerText = impact.value;
+document.addEventListener("DOMContentLoaded",()=>{
+
+const importance=document.getElementById("importance");
+const impact=document.getElementById("impact");
+const impVal=document.getElementById("impVal");
+const impactVal=document.getElementById("impactVal");
+
+if(importance && impVal)
+importance.oninput=()=>impVal.innerText=importance.value;
+
+if(impact && impactVal)
+impact.oninput=()=>impactVal.innerText=impact.value;
+
+});
 
 /* ---------------- CASCADING DATA ---------------- */
-
 const dataMap = {
   "Kakinada Rural": { "Kakinada Rural": { "Panchayat 1": ["Village A","Village B"] }},
   "Kakinada Urban": { "Kakinada Urban": { "Ward 1": ["Block A","Block B"] }},
@@ -469,13 +456,10 @@ function loadBooths(){
 }
 
 /* ---------------- NEWS INTELLIGENCE SYSTEM ---------------- */
-
 let editIndex = null;
 
 function saveNews(){
-
   const file = media.files[0];
-
   if(file){
     const reader = new FileReader();
     reader.onload = function(e){
@@ -488,7 +472,6 @@ function saveNews(){
 }
 
 function buildEntry(fileData, fileType, fileName){
-
   const entry = {
     level: level.value,
     assembly: assembly.value,
@@ -499,12 +482,10 @@ function buildEntry(fileData, fileType, fileName){
     importance: importance.value,
     impact: impact.value,
     comments: remarks.value,
-
-    fileData: fileData,     // 🔥 actual image/video
+    fileData: fileData,
     fileType: fileType,
     fileName: fileName,
-
-    date: newsDate.value || new Date().toISOString().split("T")[0], // use selected date, fallback to today
+    date: newsDate.value || new Date().toISOString().split("T")[0],
     time: new Date().toLocaleString()
   };
 
@@ -526,16 +507,15 @@ function buildEntry(fileData, fileType, fileName){
 
 function clearForm(){
   level.value = assembly.value = mandal.value = panchayat.value = village.value = booth.value = "";
-  specialComments.value = "";
+  remarks.value = "";
   importance.value = impact.value = 5;
   impVal.innerText = impactVal.innerText = 5;
   media.value = "";
-  newsDate.value = "";  // clear the date
+  newsDate.value = ""; 
 }
 
 function renderTable(){
   const data = JSON.parse(localStorage.getItem("newsIntel") || "[]");
-
   const asm = newsAssemblyFilter.value;
   const imp = filterImpact.value;
   const dt = filterDate.value;
@@ -563,11 +543,7 @@ function renderTable(){
         <td>${d.importance}</td>
         <td><b>${d.impact}</b></td>
         <td>${d.comments||"—"}</td>
-        <td>
-${d.fileData 
-    ? `<button onclick="openMedia(${i})">View</button>`
-    : "—"}
-</td>
+        <td>${d.fileData ? `<button onclick="openMedia(${i})">View</button>` : "—"}</td>
         <td>${d.time}</td>
         <td>
           <button onclick="editNews(${i})">Edit</button>
@@ -605,7 +581,7 @@ function editNews(i){
 
   importance.value = d.importance;
   impact.value = d.impact;
-  specialComments.value = d.comments;
+  remarks.value = d.comments;
   impVal.innerText = d.importance;
   impactVal.innerText = d.impact;
 
@@ -620,24 +596,16 @@ function deleteNews(i){
   renderTable();
 }
 
-
-
 /* ---------------- ANALYTICS ---------------- */
-
 function updateAnalytics(data){
   document.getElementById("totalCount").innerText = data.length;
-
-  document.getElementById("highImpactCount").innerText =
-    data.filter(d=>d.impact>8).length;
-
-  document.getElementById("avgImpact").innerText =
-    data.length
+  document.getElementById("highImpactCount").innerText = data.filter(d=>d.impact>8).length;
+  document.getElementById("avgImpact").innerText = data.length
       ? (data.reduce((a,b)=>a+Number(b.impact),0)/data.length).toFixed(1)
       : 0;
 }
 
 /* ---------------- EXPORT ---------------- */
-
 function exportExcel(){
   let data = JSON.parse(localStorage.getItem("newsIntel") || "[]");
   let csv = "Level,Assembly,Mandal,Panchayat,Village,Booth,Importance,Impact,Comments,File,Time\n";
@@ -659,7 +627,6 @@ function openMedia(index){
   const d = data[index];
 
   let html = "";
-
   if(d.fileType.startsWith("image")){
     html = `<img src="${d.fileData}" style="max-width:90%; max-height:90%; border-radius:10px;" onclick="this.requestFullscreen()">`;
   } 
@@ -677,7 +644,6 @@ function closeMedia(){
 }
 
 /* ========= LEADER SYSTEM ========= */
-
 let editLeader = null;
 
 function openLeaderForm(){
@@ -738,55 +704,6 @@ function saveLeader(){
   renderLeaders();
 }
 
-function renderLeaderStats(data){
-  const total = data.length;
-
-  const male = data.filter(l => l.gender?.toLowerCase() === "male").length;
-  const female = data.filter(l => l.gender?.toLowerCase() === "female").length;
-
-  const casteCount = {};
-  const partyCount = {};
-
-  data.forEach(l => {
-    if(l.caste){
-      casteCount[l.caste] = (casteCount[l.caste] || 0) + 1;
-    }
-    if(l.party){
-      partyCount[l.party] = (partyCount[l.party] || 0) + 1;
-    }
-  });
-
-  leaderStats.innerHTML = `
-    <div class="card">
-      <h2>${total}</h2>
-      <p>Total Leader Pool</p>
-    </div>
-
-    <div class="card">
-      <h2>${male} : ${female}</h2>
-      <p>Male vs Female</p>
-      <div class="bar">
-        <div style="width:${(male/total)*100}%;background:#4caf50;height:6px"></div>
-        <div style="width:${(female/total)*100}%;background:#e91e63;height:6px"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Caste Distribution</h3>
-      ${Object.entries(casteCount).map(([c,n]) =>
-        `<p>${c}: ${n}</p>`
-      ).join("")}
-    </div>
-
-    <div class="card">
-      <h3>Party Distribution</h3>
-      ${Object.entries(partyCount).map(([p,n]) =>
-        `<p>${p}: ${n}</p>`
-      ).join("")}
-    </div>
-  `;
-}
-
 function renderLeaders(){
   let data = JSON.parse(localStorage.getItem("leadersDB")||"[]");
 
@@ -804,7 +721,7 @@ function renderLeaders(){
   leadersGrid.innerHTML="";
   filtered.forEach((l,i)=>{
     leadersGrid.innerHTML+=`
-      <div class="card" onclick="openProfile(${i})">
+      <div class="card" onclick="openProfile(${i})" style="cursor:pointer;">
         <h3>${l.name}</h3>
         <p>${l.party} | Booth ${l.booth}</p>
         <p>${l.village}, ${l.mandal}</p>
@@ -812,22 +729,12 @@ function renderLeaders(){
       </div>`;
   });
 }
-function renderLeaderStats(){
 
-  let data = JSON.parse(localStorage.getItem("leadersDB") || "[]");
-
-  // apply SAME filters as dashboard
-  data = data.filter(l =>
-    (!leaderSearch.value || l.name?.toLowerCase().includes(leaderSearch.value.toLowerCase())) &&
-    (!leaderAssembly.value || l.ac?.toLowerCase().includes(leaderAssembly.value.toLowerCase())) &&
-    (!filterMandal.value || l.mandal?.toLowerCase().includes(filterMandal.value.toLowerCase())) &&
-    (!filterPanchayat.value || l.panchayat?.toLowerCase().includes(filterPanchayat.value.toLowerCase())) &&
-    (!filterVillage.value || l.village?.toLowerCase().includes(filterVillage.value.toLowerCase())) &&
-    (!filterBooth.value || l.booth?.toLowerCase().includes(filterBooth.value.toLowerCase()))
-  );
+// FIXED: Consolidated function that handles both stats and charts without syntax errors
+function renderLeaderStats(data){
+  if(!data) data = JSON.parse(localStorage.getItem("leadersDB") || "[]");
 
   const total = data.length;
-
   const male = data.filter(d => d.gender?.toLowerCase() === "male").length;
   const female = data.filter(d => d.gender?.toLowerCase() === "female").length;
 
@@ -838,12 +745,14 @@ function renderLeaderStats(){
     casteCounts[d.caste || "Unknown"] = (casteCounts[d.caste || "Unknown"] || 0) + 1;
     partyCounts[d.party || "Unknown"] = (partyCounts[d.party || "Unknown"] || 0) + 1;
   });
+  
+  const topParty = Object.keys(partyCounts).sort((a,b) => partyCounts[b]-partyCounts[a])[0] || "-";
 
   leaderStats.innerHTML = `
     <div class="card"><div class="sub">Total Leaders</div><div class="kpi">${total}</div></div>
     <div class="card"><div class="sub">Male</div><div class="kpi">${male}</div></div>
     <div class="card"><div class="sub">Female</div><div class="kpi">${female}</div></div>
-    <div class="card"><div class="sub">Top Party</div><div class="kpi">${Object.keys(partyCounts)[0] || "-"}</div></div>
+    <div class="card"><div class="sub">Top Party</div><div class="kpi">${topParty}</div></div>
 
     <div class="card" style="grid-column:span 2;">
       <h4>Caste Distribution</h4>
@@ -857,48 +766,33 @@ function renderLeaderStats(){
   `;
 
   setTimeout(()=>{
-    setTimeout(()=>{
+    const casteCanvas = document.getElementById("casteChart");
+    const partyCanvas = document.getElementById("partyChart");
 
-const casteCanvas =
-document.getElementById("casteChart");
+    if(casteChartInstance) casteChartInstance.destroy();
+    if(partyChartInstance) partyChartInstance.destroy();
 
-const partyCanvas =
-document.getElementById("partyChart");
+    if(casteCanvas) {
+      casteChartInstance = new Chart(casteCanvas,{
+        type:"pie",
+        data:{
+          labels:Object.keys(casteCounts),
+          datasets:[{ data:Object.values(casteCounts) }]
+        }
+      });
+    }
 
-/* DESTROY OLD CHARTS */
-if(casteChartInstance){
-casteChartInstance.destroy();
+    if(partyCanvas) {
+      partyChartInstance = new Chart(partyCanvas,{
+        type:"doughnut",
+        data:{
+          labels:Object.keys(partyCounts),
+          datasets:[{ data:Object.values(partyCounts) }]
+        }
+      });
+    }
+  }, 100);
 }
-
-if(partyChartInstance){
-partyChartInstance.destroy();
-}
-
-/* CREATE NEW */
-casteChartInstance =
-new Chart(casteCanvas,{
-type:"pie",
-data:{
-labels:Object.keys(casteCounts),
-datasets:[{
-data:Object.values(casteCounts)
-}]
-}
-});
-
-partyChartInstance =
-new Chart(partyCanvas,{
-type:"doughnut",
-data:{
-labels:Object.keys(partyCounts),
-datasets:[{
-data:Object.values(partyCounts)
-}]
-}
-});
-
-},100););
-
 
 function openProfile(i){
   const l = JSON.parse(localStorage.getItem("leadersDB"))[i];
@@ -932,101 +826,78 @@ function editLeaderProfile(i){
   openLeaderForm();
 }
 
+// Initial renders
 renderLeaders();
-renderLeaderStats();
-
-
-
 </script>
 
-<div id="mediaModal" style="
-display:none;
-position:fixed;
-top:0; left:0; width:100%; height:100%;
-background:rgba(0,0,0,0.85);
-z-index:9999;
-align-items:center;
-justify-content:center;
-flex-direction:column;">
-
-  <span onclick="closeMedia()" style="
-  color:white;font-size:30px;cursor:pointer;
-  position:absolute;top:15px;right:25px;">✖</span>
-
+<div id="mediaModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+  <span onclick="closeMedia()" style="color:white;font-size:30px;cursor:pointer; position:absolute;top:15px;right:25px;">✖</span>
   <div id="mediaContent"></div>
-
 </div>
 
-<div id="leaderModal" style="
-display:none; position:fixed; inset:0;
-background:rgba(0,0,0,0.85); z-index:9999;
-overflow:auto; padding:30px;">
+<div id="leaderModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; overflow:auto; padding:30px;">
+  <div class="card" style="max-width:900px; margin:auto;">
+  <h2>Add / Edit Leader</h2>
 
-<div class="card" style="max-width:900px; margin:auto;">
-<h2>Add / Edit Leader</h2>
+  <h3>Personal Details</h3>
+  <input id="lp_name" placeholder="Name">
+  <input id="lp_number" placeholder="Mobile Number">
+  <input id="lp_gender" placeholder="Gender">
+  <input id="lp_caste" placeholder="Caste">
+  <input id="lp_category" placeholder="Category">
+  <input id="lp_religion" placeholder="Religion">
+  <input id="lp_dob" type="date">
+  <input id="lp_party" placeholder="Party Aligned">
+  <input id="lp_partyPosition" placeholder="Party Position">
 
-<h3>Personal Details</h3>
-<input id="lp_name" placeholder="Name">
-<input id="lp_number" placeholder="Mobile Number">
-<input id="lp_gender" placeholder="Gender">
-<input id="lp_caste" placeholder="Caste">
-<input id="lp_category" placeholder="Category">
-<input id="lp_religion" placeholder="Religion">
-<input id="lp_dob" type="date">
-<input id="lp_party" placeholder="Party Aligned">
-<input id="lp_partyPosition" placeholder="Party Position">
+  <h3>Address</h3>
+  <input id="lp_pc" placeholder="Parliament">
+  <input id="lp_ac" placeholder="Assembly">
+  <input id="lp_mandal" placeholder="Mandal">
+  <input id="lp_panchayat" placeholder="Panchayat">
+  <input id="lp_village" placeholder="Village">
+  <input id="lp_booth" placeholder="Booth">
 
-<h3>Address</h3>
-<input id="lp_pc" placeholder="Parliament">
-<input id="lp_ac" placeholder="Assembly">
-<input id="lp_mandal" placeholder="Mandal">
-<input id="lp_panchayat" placeholder="Panchayat">
-<input id="lp_village" placeholder="Village">
-<input id="lp_booth" placeholder="Booth">
+  <h3>Family</h3>
+  <input id="lp_familyCount" placeholder="No of family members">
+  <input id="lp_brothers" placeholder="Brothers">
+  <input id="lp_sisters" placeholder="Sisters">
+  <input id="lp_children" placeholder="Children names">
 
-<h3>Family</h3>
-<input id="lp_familyCount" placeholder="No of family members">
-<input id="lp_brothers" placeholder="Brothers">
-<input id="lp_sisters" placeholder="Sisters">
-<input id="lp_children" placeholder="Children names">
+  <h3>Children Details</h3>
+  <textarea id="lp_childrenDetails" placeholder="Child DOB | Education | Employment (each line one child)"></textarea>
 
-<h3>Children Details</h3>
-<textarea id="lp_childrenDetails" placeholder="Child DOB | Education | Employment (each line one child)"></textarea>
+  <h3>Family Health</h3>
+  <textarea id="lp_health" placeholder="Self + family health details"></textarea>
 
-<h3>Family Health</h3>
-<textarea id="lp_health" placeholder="Self + family health details"></textarea>
+  <h3>Livelihood</h3>
+  <input id="lp_occupation" placeholder="Major family occupation">
+  <input id="lp_income" placeholder="Avg monthly income">
+  <input id="lp_dependents" placeholder="No of dependents">
+  <input id="lp_earning" placeholder="No of earning members">
 
-<h3>Livelihood</h3>
-<input id="lp_occupation" placeholder="Major family occupation">
-<input id="lp_income" placeholder="Avg monthly income">
-<input id="lp_dependents" placeholder="No of dependents">
-<input id="lp_earning" placeholder="No of earning members">
+  <h3>Assets</h3>
+  <textarea id="lp_assets" placeholder="Home, land, vehicles with description"></textarea>
 
-<h3>Assets</h3>
-<textarea id="lp_assets" placeholder="Home, land, vehicles with description"></textarea>
+  <h3>Political Status</h3>
+  <input id="lp_activeRate" placeholder="Political activity (1-10)">
+  <select id="lp_aspiration">
+    <option>Yes</option><option>No</option><option>Not Sure</option>
+  </select>
 
-<h3>Political Status</h3>
-<input id="lp_activeRate" placeholder="Political activity (1-10)">
-<select id="lp_aspiration">
-  <option>Yes</option><option>No</option><option>Not Sure</option>
-</select>
+  <h3>Confidential Chargesheet</h3>
+  <textarea id="lp_chargesheet"></textarea>
 
-<h3>Confidential Chargesheet</h3>
-<textarea id="lp_chargesheet"></textarea>
+  <h3>Consultant Remarks</h3>
+  <textarea id="lp_remarks"></textarea>
 
-<h3>Consultant Remarks</h3>
-<textarea id="lp_remarks"></textarea>
-
-<br>
-<button onclick="saveLeader()">Save Leader</button>
-<button onclick="closeLeaderForm()">Cancel</button>
-</div>
+  <br>
+  <button onclick="saveLeader()">Save Leader</button>
+  <button onclick="closeLeaderForm()">Cancel</button>
+  </div>
 </div>
 
-
-<script src="reports.js"></script>
-
-
+<script src="./reports.js"></script> 
 
 </body>
 </html>
