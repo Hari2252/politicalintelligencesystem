@@ -1,282 +1,478 @@
 /* ===============================
-   AUTOMATED REPORT ENGINE (PDF DASHBOARD EDITION)
+   AUTOMATED REPORT ENGINE
 =============================== */
 
 let DB = { demography: [], caste: [] };
 let reportCharts = { gender: null, caste: null };
 
-// Register the datalabels plugin globally for Chart.js
-Chart.register(ChartDataLabels);
 
-const std = str => (str || "").toString().replace(/[^a-z0-9]/gi, "").toLowerCase();
+
+const std = str => (str || "").toString().replace(/[^a-z0-9]/gi,"").toLowerCase();
 
 document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(loadData, 200);
+    loadData();
 });
 
-async function loadData() {
-    const out = document.getElementById("reportOutput");
-    try {
-        if (out) out.innerHTML = `<div><h3 style="color:#2563eb;">⏳ Hunting for data files...</h3></div>`;
+/* ===============================
+   LOAD EXCEL DATA
+=============================== */
 
-        // --- 1. FETCH DEMOGRAPHY ---
-        let demoUrl = "data/VillageReports.xlsx";
-        let demoRes = await fetch(demoUrl);
-        
-        // If relative path fails, try the absolute GitHub Pages URL
-        if (!demoRes.ok) {
-            demoUrl = "https://hari2252.github.io/politicalintelligencesystem/data/VillageReports.xlsx";
-            demoRes = await fetch(demoUrl);
-        }
-        
-        if (!demoRes.ok) throw new Error(`Could not find Demography file. Tried: ${demoUrl} | Status: ${demoRes.status}`);
-        
-        const demoWB = XLSX.read(await demoRes.arrayBuffer(), { type: "array" });
-        DB.demography = XLSX.utils.sheet_to_json(demoWB.Sheets[demoWB.SheetNames[0]]).map(normalizeRow);
+async function loadData(){
 
-        // --- 2. FETCH CASTE DATA ---
-        let casteUrl = "data/caste_data.xlsx";
-        let casteRes = await fetch(casteUrl);
-        
-        // Fallback 1: Try with a space (just in case)
-        if (!casteRes.ok) {
-            casteUrl = "data/Caste data.xlsx";
-            casteRes = await fetch(casteUrl);
-        }
-        // Fallback 2: Try absolute GitHub Pages URL
-        if (!casteRes.ok) {
-            casteUrl = "https://hari2252.github.io/politicalintelligencesystem/data/caste_data.xlsx";
-            casteRes = await fetch(casteUrl);
-        }
+const out = document.getElementById("reportOutput");
 
-        if (!casteRes.ok) throw new Error(`Could not find Caste file. Tried: ${casteUrl} | Status: ${casteRes.status}`);
-        
-        const casteWB = XLSX.read(await casteRes.arrayBuffer(), { type: "array" });
-        DB.caste = XLSX.utils.sheet_to_json(casteWB.Sheets[casteWB.SheetNames[0]]).map(normalizeRow);
+try{
 
-        // SUCCESS
-        if (out) out.innerHTML = `
-            <div class="card" style="text-align:center; padding: 40px; color:#64748b;">
-                <span style="font-size:40px;">📊</span>
-                <h3>✅ Data Successfully Loaded!</h3>
-                <p>Select an Assembly, Mandal, and Village to generate the PDF report.</p>
-            </div>`;
-            
-        populateAssemblies();
+if(out) out.innerHTML=`<div class="card">⏳ Loading Excel data...</div>`;
 
-    } catch (error) {
-        console.error("FETCH ERROR:", error);
-        if (out) out.innerHTML = `
-            <div class="card" style="border-left: 5px solid #ef4444; background: #fee2e2; padding: 20px;">
-                <h3 style="color: #dc2626; margin-top:0;">❌ Deployment Blocked</h3>
-                <p><b>Error:</b> ${error.message}</p>
-                <hr style="border-color:#fca5a5;">
-                <p><b>How to fix this:</b></p>
-                <ol>
-                    <li>Go to your repository on GitHub.com</li>
-                    <li>Click <b>Settings</b>.</li>
-                    <li>Scroll to the very bottom to the "Danger Zone".</li>
-                    <li>Ensure your repository visibility is set to <b>Public</b>. If it is Private, your site cannot fetch the Excel files!</li>
-                </ol>
-            </div>`;
-    }
+
+/* ---------- DEMOGRAPHY ---------- */
+
+const demoRes = await fetch("data/VillageReports.xlsx");
+
+if(!demoRes.ok){
+throw new Error("VillageReports.xlsx not found in /data folder");
 }
 
-function normalizeRow(row) {
-    let obj = {};
-    Object.keys(row).forEach(k => {
-        let cleanKey = k.replace(/[\n\r]+/g, '').trim().toLowerCase();
-        if (cleanKey.includes("assembl")) cleanKey = "assembly";
-        if (cleanKey.includes("panchayat")) cleanKey = "panchayat";
-        if (cleanKey.includes("village")) cleanKey = "village";
-        obj[cleanKey] = row[k];
-    });
-    return obj;
+const demoWB = XLSX.read(
+await demoRes.arrayBuffer(),
+{type:"array"}
+);
+
+DB.demography = XLSX.utils.sheet_to_json(
+demoWB.Sheets[demoWB.SheetNames[0]]
+).map(normalizeRow);
+
+
+/* ---------- CASTE DATA ---------- */
+
+const casteRes = await fetch("data/caste_data.xlsx");
+
+if(!casteRes.ok){
+throw new Error("caste_data.xlsx not found in /data folder");
 }
 
-function populateAssemblies() {
-    let uniqueAsm = {};
-    DB.demography.forEach(r => { if (r.assembly) uniqueAsm[std(r.assembly)] = r.assembly.trim(); });
-    const asmSelect = document.getElementById("repAssembly");
-    asmSelect.innerHTML = `<option value="">Select Assembly</option>`;
-    Object.values(uniqueAsm).sort().forEach(a => { asmSelect.innerHTML += `<option value="${a}">${a}</option>`; });
-    asmSelect.onchange = populateMandals;
+const casteWB = XLSX.read(
+await casteRes.arrayBuffer(),
+{type:"array"}
+);
+
+DB.caste = XLSX.utils.sheet_to_json(
+casteWB.Sheets[casteWB.SheetNames[0]]
+).map(normalizeRow);
+
+
+/* ---------- SUCCESS ---------- */
+
+if(out){
+out.innerHTML=`
+<div class="card" style="text-align:center">
+<h3>✅ Data Loaded Successfully</h3>
+<p>Select Assembly → Mandal → Village</p>
+</div>
+`;
 }
 
-function populateMandals() {
-    const A = std(document.getElementById("repAssembly").value);
-    let uniqueMan = {};
-    DB.demography.forEach(r => { if (std(r.assembly) === A && r.mandal) uniqueMan[std(r.mandal)] = r.mandal.trim(); });
-    const manSelect = document.getElementById("repMandal");
-    manSelect.innerHTML = `<option value="">Select Mandal</option>`;
-    Object.values(uniqueMan).sort().forEach(m => { manSelect.innerHTML += `<option value="${m}">${m}</option>`; });
-    manSelect.onchange = populateVillages;
+populateAssemblies();
+
+}catch(err){
+
+console.error(err);
+
+if(out){
+out.innerHTML=`
+<div class="card" style="color:red">
+<h3>❌ Data Loading Failed</h3>
+<p>${err.message}</p>
+</div>
+`;
 }
 
-function populateVillages() {
-    const A = std(document.getElementById("repAssembly").value);
-    const M = std(document.getElementById("repMandal").value);
-    let uniqueVil = {};
-    DB.demography.forEach(r => { if (std(r.assembly) === A && std(r.mandal) === M && r.village) uniqueVil[std(r.village)] = r.village.trim(); });
-    const panSelect = document.getElementById("repPanchayat");
-    panSelect.innerHTML = `<option value="">Select Village/Panchayat</option>`;
-    Object.values(uniqueVil).sort().forEach(v => { panSelect.innerHTML += `<option value="${v}">${v}</option>`; });
 }
 
-window.loadReport = function() {
-    const A_val = document.getElementById("repAssembly").value;
-    const M_val = document.getElementById("repMandal").value;
-    const V_val = document.getElementById("repPanchayat").value;
-    const output = document.getElementById("reportOutput");
+}
 
-    if (!A_val || !M_val || !V_val) {
-        alert("Please select Assembly, Mandal, and Village first.");
-        return;
-    }
 
-    const A = std(A_val), M = std(M_val), V = std(V_val);
+/* ===============================
+   NORMALIZE EXCEL HEADERS
+=============================== */
 
-    const demo = DB.demography.find(r => std(r.assembly) === A && std(r.mandal) === M && std(r.village) === V);
-    const casteData = DB.caste.filter(r => std(r.assembly) === A && std(r.mandal) === M && (std(r.panchayat) === V || std(r.village) === V));
+function normalizeRow(row){
 
-    if (!demo) {
-        output.innerHTML = `<div class='card' style='color:red'><h3>❌ No Demography Data Found</h3></div>`;
-        return;
-    }
+let obj={};
 
-    // Process Top Castes
-    const topCastes = casteData.sort((a, b) => (Number(b["votes"]) || 0) - (Number(a["votes"]) || 0)).slice(0, 7);
-    let casteRows = topCastes.length ? "" : "<tr><td colspan='3'>No caste data available</td></tr>";
-    
-    topCastes.forEach(r => {
-        casteRows += `<tr>
-            <td>${r["caste"]}</td>
-            <td>${r["category"] || "-"}</td>
-            <td style="text-align:right;">${r["votes"]}</td>
-        </tr>`;
-    });
+Object.keys(row).forEach(k=>{
 
-    // Generate Dashboard HTML
-    output.innerHTML = `
-    <div class="pdf-dashboard" id="printableDashboard">
-        
-        <div class="pdf-header">
-            <h2>Panchayat Report: ${demo["village"] || V_val}</h2>
-            <p>Assembly: ${demo["assembly"] || A_val} | Mandal: ${demo["mandal"] || M_val}</p>
-        </div>
+let key=k.replace(/[\n\r]+/g,'').trim().toLowerCase();
 
-        <div class="kpi-row-mini">
-            <div class="kpi-mini"><strong>${demo["total voters"] || 0}</strong><span>Total Voters</span></div>
-            <div class="kpi-mini"><strong>${demo["male voters"] || 0}</strong><span>Male</span></div>
-            <div class="kpi-mini"><strong>${demo["female voters"] || 0}</strong><span>Female</span></div>
-            <div class="kpi-mini"><strong>${demo["sc"] || 0}</strong><span>SC Voters</span></div>
-            <div class="kpi-mini"><strong>${demo["st"] || 0}</strong><span>ST Voters</span></div>
-        </div>
+if(key.includes("assembl")) key="assembly";
+if(key.includes("mandal")) key="mandal";
+if(key.includes("village")) key="village";
+if(key.includes("panchayat")) key="panchayat";
 
-        <div class="pdf-grid">
-            <div class="pdf-section">
-                <h3 class="pdf-section-title">🏛️ Leadership & Sarpanch</h3>
-                <div class="pdf-section-content">
-                    <table class="pdf-table">
-                        <tr><td>Name</td><td>${demo["sarpanch name"] || "N/A"}</td></tr>
-                        <tr><td>Party</td><td><span style="background:#2563eb; color:white; padding:2px 6px; border-radius:4px;">${demo["sarpanch party"] || "-"}</span></td></tr>
-                        <tr><td>Caste</td><td>${demo["sarpanch caste"] || "-"}</td></tr>
-                        <tr><td>Mobile</td><td>${demo["sarpanch mobile no"] || "-"}</td></tr>
-                        <tr><td>Reservation</td><td>${demo["reservation"] || "-"}</td></tr>
-                    </table>
-                </div>
-            </div>
+obj[key]=row[k];
 
-            <div class="pdf-section">
-                <h3 class="pdf-section-title">📊 Age-Wise Electors</h3>
-                <div class="pdf-section-content" style="height: 200px;">
-                    <canvas id="genderAgeChart"></canvas>
-                </div>
-            </div>
-        </div>
+});
 
-        <div class="pdf-grid">
-            <div class="pdf-section">
-                <h3 class="pdf-section-title">👥 Prominent Castes</h3>
-                <table class="pdf-table">
-                    <thead>
-                        <tr><th>Caste</th><th>Category</th><th style="text-align:right;">Votes</th></tr>
-                    </thead>
-                    <tbody>${casteRows}</tbody>
-                </table>
-            </div>
+return obj;
 
-            <div class="pdf-section">
-                <h3 class="pdf-section-title">🥧 Caste Distribution</h3>
-                <div class="pdf-section-content" style="height: 250px;">
-                    <canvas id="castePieChart"></canvas>
-                </div>
-            </div>
-        </div>
+}
 
-    </div>
-    `;
 
-    // Render Charts
-    if(reportCharts.gender) reportCharts.gender.destroy(); 
-    if(reportCharts.caste) reportCharts.caste.destroy(); 
+/* ===============================
+   POPULATE ASSEMBLY
+=============================== */
 
-    const f = [ demo["18-24 (f) voters"]||0, demo["25-44 (f) voters"]||0, demo["45-59 (f) voters"]||0, demo["60+ (f) voters"]||0 ];
-    const m = [ demo["18-24 (m) voters"]||0, demo["25-44 (m) voters"]||0, demo["45-59 (m) voters"]||0, demo["60+ (m) voters"]||0 ];
-    
-    reportCharts.gender = new Chart(document.getElementById("genderAgeChart"), {
-        type: "bar",
-        data: { 
-            labels: ["18-24", "25-44", "45-59", "60+"], 
-            datasets: [ 
-                { label: "Female", data: f, backgroundColor: "#ec4899" }, 
-                { label: "Male", data: m, backgroundColor: "#0ea5e9" } 
-            ] 
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { datalabels: { display: false } } } // Hide percentages on bar chart
-    });
+function populateAssemblies(){
 
-    if (topCastes.length > 0) {
-        reportCharts.caste = new Chart(document.getElementById("castePieChart"), {
-            type: "pie",
-            data: { 
-                labels: topCastes.map(r => r["caste"]), 
-                datasets: [{ 
-                    data: topCastes.map(r => r["votes"]), 
-                    backgroundColor: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#64748b', '#ef4444']
-                }] 
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { 
-                    legend: { position: 'right' },
-                    // This is the magic block that calculates and displays the percentages!
-                    datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold', size: 12 },
-                        formatter: (value, context) => {
-                            const dataset = context.chart.data.datasets[0];
-                            const total = dataset.data.reduce((acc, curr) => acc + curr, 0);
-                            const percentage = ((value / total) * 100).toFixed(1) + "%";
-                            // Only show label if slice is bigger than 4% so text doesn't overlap
-                            return (value / total) > 0.04 ? percentage : '';
-                        }
-                    }
-                } 
-            }
-        });
-    }
+let unique={};
+
+DB.demography.forEach(r=>{
+if(r.assembly)
+unique[std(r.assembly)] = r.assembly.trim();
+});
+
+const sel=document.getElementById("repAssembly");
+
+sel.innerHTML=`<option value="">Select Assembly</option>`;
+
+Object.values(unique)
+.sort()
+.forEach(a=>{
+sel.innerHTML+=`<option value="${a}">${a}</option>`;
+});
+
+sel.onchange=populateMandals;
+
+}
+
+
+/* ===============================
+   POPULATE MANDALS
+=============================== */
+
+function populateMandals(){
+
+const A=std(document.getElementById("repAssembly").value);
+
+let unique={};
+
+DB.demography.forEach(r=>{
+if(std(r.assembly)===A && r.mandal)
+unique[std(r.mandal)] = r.mandal.trim();
+});
+
+const sel=document.getElementById("repMandal");
+
+sel.innerHTML=`<option value="">Select Mandal</option>`;
+
+Object.values(unique)
+.sort()
+.forEach(m=>{
+sel.innerHTML+=`<option value="${m}">${m}</option>`;
+});
+
+sel.onchange=populateVillages;
+
+}
+
+
+/* ===============================
+   POPULATE VILLAGES
+=============================== */
+
+function populateVillages(){
+
+const A=std(document.getElementById("repAssembly").value);
+const M=std(document.getElementById("repMandal").value);
+
+let unique={};
+
+DB.demography.forEach(r=>{
+if(std(r.assembly)===A && std(r.mandal)===M && r.village)
+unique[std(r.village)] = r.village.trim();
+});
+
+const sel=document.getElementById("repPanchayat");
+
+sel.innerHTML=`<option value="">Select Village</option>`;
+
+Object.values(unique)
+.sort()
+.forEach(v=>{
+sel.innerHTML+=`<option value="${v}">${v}</option>`;
+});
+
+}
+
+
+/* ===============================
+   GENERATE REPORT
+=============================== */
+
+window.loadReport=function(){
+
+const A_val=document.getElementById("repAssembly").value;
+const M_val=document.getElementById("repMandal").value;
+const V_val=document.getElementById("repPanchayat").value;
+
+const output=document.getElementById("reportOutput");
+
+if(!A_val||!M_val||!V_val){
+alert("Select Assembly, Mandal and Village");
+return;
+}
+
+const A=std(A_val);
+const M=std(M_val);
+const V=std(V_val);
+
+
+/* ---------- FIND DEMOGRAPHY ---------- */
+
+const demo=DB.demography.find(r=>
+std(r.assembly)===A &&
+std(r.mandal)===M &&
+std(r.village)===V
+);
+
+if(!demo){
+output.innerHTML=`<div class="card">No demography data found</div>`;
+return;
+}
+
+
+/* ---------- FIND CASTE ---------- */
+
+const casteData=DB.caste.filter(r=>
+std(r.assembly)===A &&
+std(r.mandal)===M &&
+(std(r.village)===V || std(r.panchayat)===V)
+);
+
+
+/* ---------- TOP CASTES ---------- */
+
+const topCastes=casteData
+.sort((a,b)=>(Number(b.votes)||0)-(Number(a.votes)||0))
+.slice(0,7);
+
+let casteRows="";
+
+if(topCastes.length===0){
+casteRows="<tr><td colspan='3'>No caste data</td></tr>";
+}else{
+
+topCastes.forEach(r=>{
+casteRows+=`
+<tr>
+<td>${r.caste}</td>
+<td>${r.category||"-"}</td>
+<td style="text-align:right">${r.votes||0}</td>
+</tr>
+`;
+});
+
+}
+
+let totalVotes = topCastes.reduce((sum,r)=>sum + Number(r.votes||0),0);
+
+let percentageList = "";
+
+topCastes
+.sort((a,b)=>b.votes-a.votes)
+.forEach(r=>{
+
+let pct = ((r.votes/totalVotes)*100).toFixed(1);
+
+percentageList += `
+<tr>
+<td>${r.caste}</td>
+<td>${pct}%</td>
+</tr>
+`;
+
+});
+
+
+/* ===============================
+   DASHBOARD HTML
+=============================== */
+
+output.innerHTML=`
+
+<div class="pdf-dashboard">
+
+<div class="pdf-header">
+<h2>${demo.village}</h2>
+<p>${demo.assembly} | ${demo.mandal}</p>
+</div>
+
+<div class="kpi-row-mini">
+
+<div class="kpi-mini">
+<strong>${demo["total voters"]||0}</strong>
+<span>Total</span>
+</div>
+
+<div class="kpi-mini">
+<strong>${demo["male voters"]||0}</strong>
+<span>Male</span>
+</div>
+
+<div class="kpi-mini">
+<strong>${demo["female voters"]||0}</strong>
+<span>Female</span>
+</div>
+
+<div class="kpi-mini">
+<strong>${demo.sc||0}</strong>
+<span>SC</span>
+</div>
+
+<div class="kpi-mini">
+<strong>${demo.st||0}</strong>
+<span>ST</span>
+</div>
+
+</div>
+
+
+<div class="pdf-grid">
+
+<div class="pdf-section">
+
+<h3 class="pdf-section-title">🏛️ Leadership & Sarpanch</h3>
+
+<div class="pdf-section-content">
+
+<table class="pdf-table">
+
+<tr>
+<td>Name</td>
+<td>${demo["sarpanch name"] || "-"}</td>
+</tr>
+
+<tr>
+<td>Party</td>
+<td>${demo["sarpanch party"] || "-"}</td>
+</tr>
+
+<tr>
+<td>Caste</td>
+<td>${demo["sarpanch caste"] || "-"}</td>
+</tr>
+
+<tr>
+<td>Mobile</td>
+<td>${demo["sarpanch mobile no"] || "-"}</td>
+</tr>
+
+<tr>
+<td>Reservation</td>
+<td>${demo["reservation"] || "-"}</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+
+<div class="pdf-section">
+
+<h3 class="pdf-section-title">Caste Distribution</h3>
+
+<div style="display:grid;grid-template-columns:1fr 200px;gap:20px">
+
+<div style="height:250px">
+<canvas id="castePieChart"></canvas>
+</div>
+
+<div>
+
+<table class="pdf-table">
+
+<thead>
+<tr>
+<th>Caste</th>
+<th>%</th>
+</tr>
+</thead>
+
+<tbody>
+${percentageList}
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+`;
+
+
+/* ===============================
+   CHART
+=============================== */
+
+reportCharts.caste=new Chart(
+document.getElementById("castePieChart"),
+{
+type:"pie",
+data:{
+labels:topCastes.map(r=>r.caste),
+datasets:[{
+data:topCastes.map(r=>r.votes),
+backgroundColor:[
+"#3b82f6",
+"#8b5cf6",
+"#ec4899",
+"#f59e0b",
+"#10b981",
+"#64748b",
+"#ef4444"
+]
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{
+display:false
+}
+}
+}
+});
+});
+
+}
+
 };
 
-window.resetReport = function() {
-    document.getElementById("repAssembly").value = "";
-    document.getElementById("repMandal").innerHTML = `<option>Select Mandal</option>`;
-    document.getElementById("repPanchayat").innerHTML = `<option>Select Village/Panchayat</option>`;
-    document.getElementById("reportOutput").innerHTML = `
-        <div class="card" style="text-align:center; padding: 40px; color:#64748b;">
-            <span style="font-size:40px;">📊</span>
-            <h3>Ready for Analysis</h3>
-            <p>Select an Assembly, Mandal, and Village to generate the report.</p>
-        </div>`;
+
+/* ===============================
+   RESET
+=============================== */
+
+window.resetReport=function(){
+
+document.getElementById("repAssembly").value="";
+document.getElementById("repMandal").innerHTML=`<option>Select Mandal</option>`;
+document.getElementById("repPanchayat").innerHTML=`<option>Select Village</option>`;
+
+document.getElementById("reportOutput").innerHTML=`
+<div class="card" style="text-align:center">
+<h3>Ready for Analysis</h3>
+</div>
+`;
+
 };

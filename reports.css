@@ -1,240 +1,43 @@
-.report-page{
-    display:grid;
-    grid-template-columns: 300px 1fr;
-    gap:20px;
-}
+body { margin:0; font-family: Arial, sans-serif; background:#f1f5f9; }
+header { background:#020617; color:white; padding:14px 20px; font-size:20px; font-weight:bold; }
+.layout { display:flex; height:calc(100vh - 52px); }
+.sidebar { width:260px; background:#020617; color:white; padding:15px; overflow:auto; }
+.sidebar button { width:100%; background:none; border:none; color:white; text-align:left; padding:10px; border-radius:8px; cursor:pointer; }
+.sidebar button:hover { background:#1e293b; }
+.main { flex:1; padding:20px; overflow:auto; }
+.hidden { display:none; }
+.card { background:white; padding:14px; border-radius:14px; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
 
-.report-left{
-    position:sticky;
-    top:20px;
-    height:fit-content;
-}
+/* Automated Reports Layout */
+.reports-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+.reports-selection { position: sticky; top: 20px; }
+.reports-selection select { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #cbd5e1; }
 
-.report-right{
-    display:block;
-}
+/* PDF Dashboard Styles */
+.pdf-dashboard { background: #fff; padding: 20px; border: 1px solid #cbd5e1; max-width: 100%; margin: 0 auto; box-sizing: border-box; }
+.pdf-header { text-align: center; border-bottom: 2px solid #1e293b; padding-bottom: 10px; margin-bottom: 15px; }
+.sarpanch-sub { font-size: 14px; color: #475569; margin-top: 5px; }
 
-.report-structure{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap:20px;
-}
+.pdf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 15px; }
+.pdf-section { border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; background: #fff; }
+.pdf-section-title { background: #f1f5f9; padding: 8px 12px; font-size: 13px; font-weight: bold; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; }
+.pdf-section-content { padding: 10px; }
 
-.report-row{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:20px;
-}
+.kpi-row-mini { display: flex; justify-content: space-between; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+.kpi-mini { text-align: center; }
+.kpi-mini strong { display: block; font-size: 18px; color: #2563eb; }
 
-@media(max-width:1000px){
-    .report-page{
-        grid-template-columns:1fr;
-    }
-    .report-row{
-        grid-template-columns:1fr;
-    }
-}
+.pdf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pdf-table th, .pdf-table td { padding: 8px; border-bottom: 1px solid #f1f5f9; text-align: left; }
+.pdf-table th { background: #f8fafc; color: #64748b; font-size: 11px; }
 
-.report-controls select {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
+/* Retro Card Styles */
+.retro-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.retro-card { border: 1px solid #e2e8f0; padding: 10px; border-radius: 4px; background: #f8fafc; }
+.retro-year { font-size: 11px; font-weight: bold; color: #64748b; border-bottom: 1px solid #cbd5e1; margin-bottom: 5px; }
+.retro-stat { display: flex; justify-content: space-between; font-size: 12px; }
 
-.btn-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.btn {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-}
-
+.btn { padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 8px; }
 .btn.primary { background:#1d4ed8; color:white; }
 .btn.secondary { background:#0f766e; color:white; }
 .btn.warning { background:#dc2626; color:white; }
-
-.report-output {
-  min-height: 500px;
-}
-
-/* ===== REPORT DASHBOARD LAYOUT ===== */
-
-.report-grid{
-    display:grid;
-    grid-template-columns: repeat(3,1fr);
-    gap:20px;
-    margin-top:15px;
-}
-
-.report-full{
-    grid-column:1 / -1;
-}
-
-.report-card{
-    background:white;
-    padding:18px;
-    border-radius:14px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-
-.report-title{
-    font-weight:bold;
-    margin-bottom:10px;
-    font-size:16px;
-}
-
-/* responsive */
-@media(max-width:1000px){
-    .report-grid{
-        grid-template-columns:1fr;
-    }
-}
-.reports-layout{
-    display:grid;
-    grid-template-columns: 280px 1fr;
-    gap:25px;
-}
-
-.reports-selection{
-    height:fit-content;
-}
-
-.reports-output{
-    display:block;
-}
-
-.report-structure{
-    display:grid;
-    gap:20px;
-}
-
-/* Sarpanch full width */
-.section-sarpanch{
-    grid-column:1 / -1;
-}
-
-/* Summary + Age side by side */
-.section-row{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-}
-
-/* Caste full width */
-.section-caste{
-    grid-column:1 / -1;
-}
-
-@media(max-width:1000px){
-    .reports-layout{
-        grid-template-columns:1fr;
-    }
-    .section-row{
-        grid-template-columns:1fr;
-    }
-}
-.reports-selection select{
-    width:100%;
-    padding:10px;
-    margin-bottom:12px;
-    border-radius:10px;
-    border:1px solid #d1d5db;
-    font-size:14px;
-    background:white;
-}
-
-.reports-selection{
-    position:sticky;
-    top:20px;
-    height:fit-content;
-}
-/* ===============================
-   PDF-STYLE DASHBOARD LAYOUT
-=============================== */
-.pdf-dashboard {
-    background: #ffffff;
-    padding: 30px;
-    border: 1px solid #cbd5e1;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-    color: #1e293b;
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-.pdf-header {
-    text-align: center;
-    border-bottom: 3px solid #1e293b;
-    padding-bottom: 15px;
-    margin-bottom: 25px;
-}
-
-.pdf-header h2 { margin: 0; font-size: 26px; text-transform: uppercase; letter-spacing: 1px; }
-.pdf-header p { margin: 5px 0 0 0; font-size: 16px; color: #475569; }
-
-.pdf-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    margin-bottom: 25px;
-}
-
-.pdf-section {
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.pdf-section-title {
-    background: #f1f5f9;
-    padding: 10px 15px;
-    margin: 0;
-    font-size: 16px;
-    font-weight: bold;
-    border-bottom: 1px solid #e2e8f0;
-    color: #0f172a;
-}
-
-.pdf-section-content { padding: 15px; }
-
-.pdf-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-.pdf-table th, .pdf-table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #f1f5f9;
-    text-align: left;
-}
-
-.pdf-table th { background: #f8fafc; color: #64748b; font-weight: bold; }
-.pdf-table td:first-child { font-weight: bold; color: #334155; }
-.pdf-table tr:last-child td { border-bottom: none; }
-
-.kpi-row-mini {
-    display: flex;
-    justify-content: space-between;
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
-}
-
-.kpi-mini { text-align: center; }
-.kpi-mini strong { display: block; font-size: 20px; color: #0f172a; }
-.kpi-mini span { font-size: 12px; color: #64748b; text-transform: uppercase; }
-
-@media(max-width: 800px) {
-    .pdf-grid { grid-template-columns: 1fr; }
-}
