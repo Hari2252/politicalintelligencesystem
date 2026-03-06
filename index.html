@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<>
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Constituency Political Intelligence System</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
@@ -346,34 +347,30 @@
     </div>
 
     <div id="reports" class="hidden">
-      <h2>Automated Intelligence Reports</h2>
-
-      <div class="reports-layout">
-
-      <!-- COLUMN 1 : SELECTION PANEL -->
-      <div class="reports-selection card">
-        <h3>Selection Panel</h3>
-        <select id="repAssembly"></select>
-        <select id="repMandal"></select>
-        <select id="repPanchayat"></select>
-
-        <div class="btn-group" style="margin-top:15px;">
-            <button class="btn primary" onclick="loadReport()">Load Report</button>
-            <button class="btn secondary">Export PDF</button>
-            <button class="btn warning" onclick="resetReport()">Reset</button>
-        </div>
+  <h2>Automated Intelligence Reports</h2>
+  <div class="reports-layout" style="display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start;">
+    
+    <div class="reports-selection card" style="position: sticky; top: 20px;">
+      <h3 style="margin-top:0;">Location Filter</h3>
+      <select id="repAssembly" style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #cbd5e1;"></select>
+      <select id="repMandal" style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #cbd5e1;"></select>
+      <select id="repPanchayat" style="width:100%; padding:10px; margin-bottom:15px; border-radius:6px; border:1px solid #cbd5e1;"></select>
+      
+      <button onclick="loadReport()" style="width:100%; background:#2563eb; color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:10px;">Generate Dashboard</button>
+      <button onclick="window.print()" style="width:100%; background:#475569; color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:10px;">Export PDF</button>
+      <button onclick="resetReport()" style="width:100%; background:#ef4444; color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Reset</button>
     </div>
 
-    <!-- COLUMN 2 : REPORT AREA -->
-    <div id="reportOutput" class="reports-output">
-        <div class="card">
-            <h3>Report Preview Area</h3>
-            <p>Select location and click Load Report</p>
-        </div>
+    <div id="reportOutput" class="reports-output" style="width: 100%;">
+      <div class="card" style="text-align:center; padding: 40px; color:#64748b;">
+        <span style="font-size:40px;">📊</span>
+        <h3>Ready for Analysis</h3>
+        <p>Select an Assembly, Mandal, and Village to generate the report.</p>
+      </div>
     </div>
 
+  </div>
 </div>
-    </div>
 
   </div>
 </div>

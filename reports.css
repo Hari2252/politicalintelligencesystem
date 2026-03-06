@@ -156,3 +156,85 @@
     top:20px;
     height:fit-content;
 }
+/* ===============================
+   PDF-STYLE DASHBOARD LAYOUT
+=============================== */
+.pdf-dashboard {
+    background: #ffffff;
+    padding: 30px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    color: #1e293b;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.pdf-header {
+    text-align: center;
+    border-bottom: 3px solid #1e293b;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.pdf-header h2 { margin: 0; font-size: 26px; text-transform: uppercase; letter-spacing: 1px; }
+.pdf-header p { margin: 5px 0 0 0; font-size: 16px; color: #475569; }
+
+.pdf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.pdf-section {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.pdf-section-title {
+    background: #f1f5f9;
+    padding: 10px 15px;
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid #e2e8f0;
+    color: #0f172a;
+}
+
+.pdf-section-content { padding: 15px; }
+
+.pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.pdf-table th, .pdf-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: left;
+}
+
+.pdf-table th { background: #f8fafc; color: #64748b; font-weight: bold; }
+.pdf-table td:first-child { font-weight: bold; color: #334155; }
+.pdf-table tr:last-child td { border-bottom: none; }
+
+.kpi-row-mini {
+    display: flex;
+    justify-content: space-between;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.kpi-mini { text-align: center; }
+.kpi-mini strong { display: block; font-size: 20px; color: #0f172a; }
+.kpi-mini span { font-size: 12px; color: #64748b; text-transform: uppercase; }
+
+@media(max-width: 800px) {
+    .pdf-grid { grid-template-columns: 1fr; }
+}
