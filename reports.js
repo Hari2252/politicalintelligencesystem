@@ -17,23 +17,68 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadData() {
     const out = document.getElementById("reportOutput");
     try {
-        // Fetch Demography directly from your GitHub repo's raw feed
-        const demoRes = await fetch("https://raw.githubusercontent.com/Hari2252/politicalintelligencesystem/main/data/VillageReports.xlsx");
-        if (!demoRes.ok) throw new Error("Could not find VillageReports.xlsx on GitHub.");
+        if (out) out.innerHTML = `<div><h3 style="color:#2563eb;">⏳ Hunting for data files...</h3></div>`;
+
+        // --- 1. FETCH DEMOGRAPHY ---
+        let demoUrl = "data/VillageReports.xlsx";
+        let demoRes = await fetch(demoUrl);
+        
+        // If relative path fails, try the absolute GitHub Pages URL
+        if (!demoRes.ok) {
+            demoUrl = "https://hari2252.github.io/politicalintelligencesystem/data/VillageReports.xlsx";
+            demoRes = await fetch(demoUrl);
+        }
+        
+        if (!demoRes.ok) throw new Error(`Could not find Demography file. Tried: ${demoUrl} | Status: ${demoRes.status}`);
+        
         const demoWB = XLSX.read(await demoRes.arrayBuffer(), { type: "array" });
         DB.demography = XLSX.utils.sheet_to_json(demoWB.Sheets[demoWB.SheetNames[0]]).map(normalizeRow);
 
-        // Fetch Caste Data directly from your GitHub repo's raw feed
-        // NOTE: Check your GitHub repo online. If this file still has a space in the name (Caste data.xlsx), change the link below to match!
-        const casteRes = await fetch("https://raw.githubusercontent.com/Hari2252/politicalintelligencesystem/main/data/caste_data.xlsx"); 
-        if (!casteRes.ok) throw new Error("Could not find caste_data.xlsx on GitHub.");
+        // --- 2. FETCH CASTE DATA ---
+        let casteUrl = "data/caste_data.xlsx";
+        let casteRes = await fetch(casteUrl);
+        
+        // Fallback 1: Try with a space (just in case)
+        if (!casteRes.ok) {
+            casteUrl = "data/Caste data.xlsx";
+            casteRes = await fetch(casteUrl);
+        }
+        // Fallback 2: Try absolute GitHub Pages URL
+        if (!casteRes.ok) {
+            casteUrl = "https://hari2252.github.io/politicalintelligencesystem/data/caste_data.xlsx";
+            casteRes = await fetch(casteUrl);
+        }
+
+        if (!casteRes.ok) throw new Error(`Could not find Caste file. Tried: ${casteUrl} | Status: ${casteRes.status}`);
+        
         const casteWB = XLSX.read(await casteRes.arrayBuffer(), { type: "array" });
         DB.caste = XLSX.utils.sheet_to_json(casteWB.Sheets[casteWB.SheetNames[0]]).map(normalizeRow);
 
+        // SUCCESS
+        if (out) out.innerHTML = `
+            <div class="card" style="text-align:center; padding: 40px; color:#64748b;">
+                <span style="font-size:40px;">📊</span>
+                <h3>✅ Data Successfully Loaded!</h3>
+                <p>Select an Assembly, Mandal, and Village to generate the PDF report.</p>
+            </div>`;
+            
         populateAssemblies();
+
     } catch (error) {
         console.error("FETCH ERROR:", error);
-        if (out) out.innerHTML = `<div class="card" style="border-left: 5px solid #ef4444; background: #fee2e2;"><h3 style="color: #dc2626;">❌ Data Connection Failed</h3><p>${error.message}</p></div>`;
+        if (out) out.innerHTML = `
+            <div class="card" style="border-left: 5px solid #ef4444; background: #fee2e2; padding: 20px;">
+                <h3 style="color: #dc2626; margin-top:0;">❌ Deployment Blocked</h3>
+                <p><b>Error:</b> ${error.message}</p>
+                <hr style="border-color:#fca5a5;">
+                <p><b>How to fix this:</b></p>
+                <ol>
+                    <li>Go to your repository on GitHub.com</li>
+                    <li>Click <b>Settings</b>.</li>
+                    <li>Scroll to the very bottom to the "Danger Zone".</li>
+                    <li>Ensure your repository visibility is set to <b>Public</b>. If it is Private, your site cannot fetch the Excel files!</li>
+                </ol>
+            </div>`;
     }
 }
 
