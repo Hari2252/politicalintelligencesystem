@@ -17,22 +17,23 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadData() {
     const out = document.getElementById("reportOutput");
     try {
-        // Added ./ to force relative pathing on GitHub Pages
-        const demoRes = await fetch("./data/VillageReports.xlsx");
-        if (!demoRes.ok) throw new Error(`VillageReports.xlsx failed to load. Status: ${demoRes.status}`);
+        // Fetch Demography directly from your GitHub repo's raw feed
+        const demoRes = await fetch("https://raw.githubusercontent.com/Hari2252/politicalintelligencesystem/main/data/VillageReports.xlsx");
+        if (!demoRes.ok) throw new Error("Could not find VillageReports.xlsx on GitHub.");
         const demoWB = XLSX.read(await demoRes.arrayBuffer(), { type: "array" });
         DB.demography = XLSX.utils.sheet_to_json(demoWB.Sheets[demoWB.SheetNames[0]]).map(normalizeRow);
 
-        // Added ./ to force relative pathing on GitHub Pages
-        const casteRes = await fetch("./data/caste_data.xlsx"); 
-        if (!casteRes.ok) throw new Error(`caste_data.xlsx failed to load. Status: ${casteRes.status}`);
+        // Fetch Caste Data directly from your GitHub repo's raw feed
+        // NOTE: Check your GitHub repo online. If this file still has a space in the name (Caste data.xlsx), change the link below to match!
+        const casteRes = await fetch("https://raw.githubusercontent.com/Hari2252/politicalintelligencesystem/main/data/caste_data.xlsx"); 
+        if (!casteRes.ok) throw new Error("Could not find caste_data.xlsx on GitHub.");
         const casteWB = XLSX.read(await casteRes.arrayBuffer(), { type: "array" });
         DB.caste = XLSX.utils.sheet_to_json(casteWB.Sheets[casteWB.SheetNames[0]]).map(normalizeRow);
 
         populateAssemblies();
     } catch (error) {
         console.error("FETCH ERROR:", error);
-        if (out) out.innerHTML = `<div class="card" style="border-left: 5px solid #ef4444; background: #fee2e2;"><h3 style="color: #dc2626;">❌ Data Connection Failed</h3><p>${error.message}</p><p>Check the Console (F12) for the exact 404 file path error.</p></div>`;
+        if (out) out.innerHTML = `<div class="card" style="border-left: 5px solid #ef4444; background: #fee2e2;"><h3 style="color: #dc2626;">❌ Data Connection Failed</h3><p>${error.message}</p></div>`;
     }
 }
 
