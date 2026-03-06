@@ -17,20 +17,22 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadData() {
     const out = document.getElementById("reportOutput");
     try {
-        const demoRes = await fetch("data/VillageReports.xlsx");
-        if (!demoRes.ok) throw new Error("Could not find 'VillageReports.xlsx'.");
+        // Added ./ to force relative pathing on GitHub Pages
+        const demoRes = await fetch("./data/VillageReports.xlsx");
+        if (!demoRes.ok) throw new Error(`VillageReports.xlsx failed to load. Status: ${demoRes.status}`);
         const demoWB = XLSX.read(await demoRes.arrayBuffer(), { type: "array" });
         DB.demography = XLSX.utils.sheet_to_json(demoWB.Sheets[demoWB.SheetNames[0]]).map(normalizeRow);
 
-        const casteRes = await fetch("data/caste_data.xlsx"); 
-        if (!casteRes.ok) throw new Error("Could not find 'caste_data.xlsx'.");
+        // Added ./ to force relative pathing on GitHub Pages
+        const casteRes = await fetch("./data/caste_data.xlsx"); 
+        if (!casteRes.ok) throw new Error(`caste_data.xlsx failed to load. Status: ${casteRes.status}`);
         const casteWB = XLSX.read(await casteRes.arrayBuffer(), { type: "array" });
         DB.caste = XLSX.utils.sheet_to_json(casteWB.Sheets[casteWB.SheetNames[0]]).map(normalizeRow);
 
         populateAssemblies();
     } catch (error) {
         console.error("FETCH ERROR:", error);
-        if (out) out.innerHTML = `<div class="card" style="color:red;"><h3>❌ Data Connection Failed</h3><p>${error.message}</p></div>`;
+        if (out) out.innerHTML = `<div class="card" style="border-left: 5px solid #ef4444; background: #fee2e2;"><h3 style="color: #dc2626;">❌ Data Connection Failed</h3><p>${error.message}</p><p>Check the Console (F12) for the exact 404 file path error.</p></div>`;
     }
 }
 
